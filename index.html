@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<title>Fort Lauderdale Visualization</title>
+		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+		<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+		<script src="http://maps.google.com/maps/api/js?v=3&sensor=false"></script>
+		<script src="Google.js"></script>
+		<script src="GoogleTraffic.js"></script>
+
+		<style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+        html, body, #map {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+	</head>
+
+	<body >
+		<div id="map"></div>
+
+		<script>
+
+		// Initialize map
+		var map = L.map('map').setView([26.123679,-80.143186], 12);
+
+		// Load MapBox map
+		var accessToken = 'pk.eyJ1IjoicXRyYW5kZXYiLCJhIjoiSDF2cGNjZyJ9.D1ybOKe77AQDPHkxCCEpJQ';
+		var osmLayer = L.tileLayer('https://{s}.tiles.mapbox.com/v4/qtrandev.lc0i743k/{z}/{x}/{y}.png?access_token=' + accessToken, {
+			maxZoom: 20,
+		  attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+		    '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+		    'Imagery &copy; <a href="http://mapbox.com">Mapbox</a>'
+		});
+
+
+
+		// Set up Google Maps layers
+		var googleRoadmap = new L.Google('ROADMAP', { maxZoom: 20 });
+		var googleHybrid = new L.Google('HYBRID', { maxZoom: 20 });
+		var googleTraffic = new L.GoogleTraffic('ROADMAP', { maxZoom: 20 });
+		map.addLayer(googleRoadmap);
+
+		L.control.layers({'Google Map':googleRoadmap, 'Google Satellite':googleHybrid, 'Google Traffic':googleTraffic, 'OpenStreetMap':osmLayer},{}).addTo(map);
+
+		function addLocations() {
+			var i = 0;
+			for (i = 0; i < locations.length; i++) {
+				addMarker(
+					locations[i].name,
+					locations[i].url,
+					locations[i].desc,
+					locations[i].lat,
+					locations[i].lng
+				);
+			}
+		}
+
+		function addMarker(name, url, desc, lat, lng) {
+			var marker = L.marker([lat, lng]).bindPopup(
+		      '<strong>' + name + '</strong><br><br>' + '<a href="' + url + '" target="blank">' + url + '</a>' + '<br><br>' +  desc,
+		      { offset: new L.Point(0, -22) }).addTo(map);
+			marker.on('mouseover', function (e) {
+				this.openPopup();
+			});
+		}
+
+		var locations = [
+			{ name: "Fort Lauderdale", url: "http://www.fortlauderdale.gov", desc: "The City of Fort Lauderdale!" , lat: 26.123679, lng: -80.143186},
+			{ name: "Code for Fort Lauderdale", url: "http://www.codeforftl.org", desc: "Code for Fort Lauderdale!" , lat: 26.0802, lng: -80.243259},
+		];
+
+		function addGeoJson(location) {
+			$.getJSON(location, function(data) {
+				var geojson = L.geoJson(data, {
+		      onEachFeature: function (feature, layer) {
+		        layer.bindPopup(feature.properties.DESCRIPTIO +
+						'<br>'+feature.properties.ID+'<br>'+feature.properties.FY);
+				console.log(feature.properties.DESCRIPTIO);
+		      }
+		    });
+		    geojson.addTo(map);
+		  });
+		}
+
+		/** Code execution begins here */
+		addLocations();
+		addGeoJson("CIP_PROJECTS_PT_.geojson");
+
+		</script>
+
+	</body>
+
+</html>
