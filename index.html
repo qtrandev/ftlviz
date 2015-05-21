@@ -78,22 +78,28 @@
 			{ name: "Code for Fort Lauderdale", url: "http://www.codeforftl.org", desc: "Code for Fort Lauderdale!" , lat: 26.0802, lng: -80.243259},
 		];
 
-		function addGeoJson(location) {
+		function addGeoJson(location, displayFunction) {
 			$.getJSON(location, function(data) {
 				var geojson = L.geoJson(data, {
-		      onEachFeature: function (feature, layer) {
-		        layer.bindPopup(feature.properties.DESCRIPTIO +
-						'<br>'+feature.properties.ID+'<br>'+feature.properties.FY);
-				console.log(feature.properties.DESCRIPTIO);
-		      }
-		    });
+		      onEachFeature: displayFunction });
 		    geojson.addTo(map);
 		  });
 		}
 
 		/** Code execution begins here */
 		addLocations();
-		addGeoJson("CIP_PROJECTS_PT_.geojson");
+		addGeoJson("ftl_pt_workprogram_2014_2018.geojson", function (feature, layer) {
+			layer.bindPopup(
+				'<strong>'+feature.properties.loc_desc+'</strong>'+
+				'<br><br>County: '+feature.properties.countydesc+
+				'<br>Project Manager: '+feature.properties.project_ma+
+				'<br>Status: '+feature.properties.status+
+				'<br>FY22: '+feature.properties.fy22+
+				'<br>FY32: '+feature.properties.fy32+
+				'<br>FY52: '+feature.properties.fy52+
+				'<br>FY58: '+feature.properties.fy58+
+				'<br>FY58WP: '+feature.properties.fy5wp);
+			});
 
 		</script>
 
