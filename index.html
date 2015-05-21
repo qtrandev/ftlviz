@@ -5,12 +5,14 @@
 		<title>Fort Lauderdale Visualization</title>
 		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+		<link rel="stylesheet" href="dist/leaflet.awesome-markers.css">
 		<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
 		<script src="http://maps.google.com/maps/api/js?v=3&sensor=false"></script>
 		<script src="Google.js"></script>
 		<script src="GoogleTraffic.js"></script>
+		<script src="dist/leaflet.awesome-markers.js"></script>
 
 		<style>
         body {
@@ -41,8 +43,6 @@
 		    'Imagery &copy; <a href="http://mapbox.com">Mapbox</a>'
 		});
 
-
-
 		// Set up Google Maps layers
 		var googleRoadmap = new L.Google('ROADMAP', { maxZoom: 20 });
 		var googleHybrid = new L.Google('HYBRID', { maxZoom: 20 });
@@ -65,7 +65,11 @@
 		}
 
 		function addMarker(name, url, desc, lat, lng) {
-			var marker = L.marker([lat, lng]).bindPopup(
+			var redMarker = L.AwesomeMarkers.icon({
+				icon: 'coffee',
+				markerColor: 'red'
+			});
+			var marker = L.marker([lat, lng], {icon: redMarker}).bindPopup(
 		      '<strong>' + name + '</strong><br><br>' + '<a href="' + url + '" target="blank">' + url + '</a>' + '<br><br>' +  desc,
 		      { offset: new L.Point(0, -22) }).addTo(map);
 			marker.on('mouseover', function (e) {
