@@ -103,7 +103,20 @@
 				'<br>FY52: '+feature.properties.fy52+
 				'<br>FY58: '+feature.properties.fy58+
 				'<br>FY58WP: '+feature.properties.fy5wp);
-			});
+		});
+
+		addGeoJson("bwdco_ftl_const.geojson", function (feature, layer) {
+			layer.bindPopup(
+				'<strong>'+feature.properties.loc_desc+'</strong>'+
+				'<br><br>County: '+feature.properties.countydesc+
+				'<br>Project Manager: '+feature.properties.project_ma+
+				'<br>Status: '+feature.properties.status+
+				'<br>FY22: '+feature.properties.fy22+
+				'<br>FY32: '+feature.properties.fy32+
+				'<br>FY52: '+feature.properties.fy52+
+				'<br>FY58: '+feature.properties.fy58+
+				'<br>FY58WP: '+feature.properties.fy5wp);
+		});
 
 		</script>
 
