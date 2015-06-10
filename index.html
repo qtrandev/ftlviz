@@ -118,6 +118,26 @@
 				'<br>FY58WP: '+feature.properties.fy5wp);
 		});
 
+		addGeoJson("cip_projects_pt.geojson", function (feature, layer) {
+			layer.bindPopup(
+				'<strong>'+feature.properties.descriptio+'</strong>'+
+				'<br><br>FY: '+feature.properties.fy+
+				'<br>ID: '+feature.properties.id+
+				'<br>ID1: '+feature.properties.id_1+
+				'<br>Number: '+feature.properties.number+
+				'<br>Ex_Airport: '+feature.properties.ex_airport);
+		});
+
+		addGeoJson("cip_projects_line.geojson", function (feature, layer) {
+			layer.bindPopup(
+				'<strong>'+feature.properties.descriptio+'</strong>'+
+				'<br><br>FY: '+feature.properties.fy+
+				'<br>ID: '+feature.properties.id+
+				'<br>ID1: '+feature.properties.id_1+
+				'<br>Number: '+feature.properties.number+
+				'<br>Ex_Airport: '+feature.properties.ex_airport);
+		});
+
 		</script>
 
 	</body>
