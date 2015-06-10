@@ -23,6 +23,18 @@
             height: 100%;
             width: 100%;
         }
+				.info {
+					padding: 6px 8px;
+			    font: 14px/16px Arial, Helvetica, sans-serif;
+			    background: white;
+			    background: rgba(255,255,255,0.8);
+			    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+			    border-radius: 5px;
+				}
+				.info h4 {
+						margin: 0 0 5px;
+						color: #777;
+				}
     </style>
 	</head>
 
@@ -49,7 +61,7 @@
 		var googleTraffic = new L.GoogleTraffic('ROADMAP', { maxZoom: 20 });
 		map.addLayer(googleRoadmap);
 
-		L.control.layers({'Google Map':googleRoadmap, 'Google Satellite':googleHybrid, 'Google Traffic':googleTraffic, 'OpenStreetMap':osmLayer},{}).addTo(map);
+		var control = L.control.layers({'Google Map':googleRoadmap, 'Google Satellite':googleHybrid, 'Google Traffic':googleTraffic, 'OpenStreetMap':osmLayer},{});
 
 		var redMarker = L.AwesomeMarkers.icon({
 			icon: 'coffee',
@@ -61,6 +73,41 @@
 		});
 		var geojsonHighlight;
 		var geojsonHighlightBroward;
+
+		var info = L.control();
+
+		info.onAdd = function (map) {
+			this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+			this.update();
+			return this._div;
+		};
+
+		// method that we will use to update the control based on feature properties passed
+		info.update = function (props) {
+			var display = '<h4>Fort Lauderdale Visualization</h4>';
+			if (props) {
+				var desc;
+				var details;
+				if (props.loc_desc) {
+					desc = props.loc_desc;
+					details = props.countydesc +
+						'<br>' + props.project_ma +
+						'<br>' + props.status +
+						'<br>' + props.fy52;
+				} else {
+					desc = props.descriptio;
+					details = props.fy;
+				}
+				display = display + '<br><b>' + desc + '</b>' +
+					'<br>' + details;
+			} else {
+				display = display + '<br>Hover over a road';
+			}
+			this._div.innerHTML = display;
+		};
+
+		info.addTo(map);
+		control.addTo(map);
 
 		function addLocations() {
 			var i = 0;
@@ -216,10 +263,12 @@
 	    if (!L.Browser.ie && !L.Browser.opera) {
 	        layer.bringToFront();
 	    }
+			info.update(layer.feature.properties);
 		}
 
 		function resetHighlight(e) {
 			geojsonHighlight.resetStyle(e.target);
+			info.update();
 		}
 
 		function highlightFeatureBroward(e) {
@@ -233,10 +282,12 @@
 	    if (!L.Browser.ie && !L.Browser.opera) {
 	        layer.bringToFront();
 	    }
+			info.update(layer.feature.properties);
 		}
 
 		function resetHighlightBroward(e) {
 			geojsonHighlightBroward.resetStyle(e.target);
+			info.update();
 		}
 
 		</script>
