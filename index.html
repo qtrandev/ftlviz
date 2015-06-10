@@ -71,6 +71,10 @@
 			icon: 'coffee',
 			markerColor: 'green'
 		});
+		var blueMarker = L.AwesomeMarkers.icon({
+			icon: 'coffee',
+			markerColor: 'blue'
+		});
 		var geojsonHighlight;
 		var geojsonHighlightBroward;
 
@@ -101,7 +105,7 @@
 				display = display + '<br><b>' + desc + '</b>' +
 					'<br>' + details;
 			} else {
-				display = display + '<br>Hover over a road';
+				display = display + '<br>Hover over a road or marker';
 			}
 			this._div.innerHTML = display;
 		};
@@ -126,9 +130,6 @@
 			var marker = L.marker([lat, lng], {icon: redMarker}).bindPopup(
 		      '<strong>' + name + '</strong><br><br>' + '<a href="' + url + '" target="blank">' + url + '</a>' + '<br><br>' +  desc,
 		      { offset: new L.Point(0, -22) }).addTo(map);
-			marker.on('mouseover', function (e) {
-				this.openPopup();
-			});
 		}
 
 		var locations = [
@@ -173,7 +174,8 @@
 
 		/** Code execution begins here */
 		addLocations();
-		addGeoJson("ftl_pt_workprogram_2014_2018.geojson", function (feature, layer) {
+		addGeoJsonCustom("ftl_pt_workprogram_2014_2018.geojson",
+		function (feature, layer) {
 			layer.bindPopup(
 				'<strong>'+feature.properties.loc_desc+'</strong>'+
 				'<br><br>County: '+feature.properties.countydesc+
@@ -184,7 +186,19 @@
 				'<br>FY52: '+feature.properties.fy52+
 				'<br>FY58: '+feature.properties.fy58+
 				'<br>FY58WP: '+feature.properties.fy5wp);
-		});
+		},
+		function (feature, latlng) {
+			var marker = L.marker(latlng, {icon: blueMarker})
+			marker.on({
+        mouseover: function (e) {
+					info.update(e.target.feature.properties)
+				},
+        mouseout: function (e) {
+					info.update()
+				}
+			});
+    	return marker;
+  	});
 
 		addGeoJsonStyleHighlightBroward("bwdco_ftl_const.geojson", function (feature, layer) {
 			layer.on({
@@ -224,7 +238,16 @@
 				'<br>Ex_Airport: '+feature.properties.ex_airport);
 		},
 		function (feature, latlng) {
-    	return L.marker(latlng, {icon: greenMarker});
+			var marker = L.marker(latlng, {icon: greenMarker})
+			marker.on({
+        mouseover: function (e) {
+					info.update(e.target.feature.properties)
+				},
+        mouseout: function (e) {
+					info.update()
+				}
+			});
+    	return marker;
   	});
 
 		addGeoJsonStyleHighlight("cip_projects_line.geojson",
