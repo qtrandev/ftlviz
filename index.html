@@ -59,7 +59,7 @@
 		var googleRoadmap = new L.Google('ROADMAP', { maxZoom: 20 });
 		var googleHybrid = new L.Google('HYBRID', { maxZoom: 20 });
 		var googleTraffic = new L.GoogleTraffic('ROADMAP', { maxZoom: 20 });
-		map.addLayer(googleRoadmap);
+		map.addLayer(googleTraffic);
 
 		var control = L.control.layers({'Google Map':googleRoadmap, 'Google Satellite':googleHybrid, 'Google Traffic':googleTraffic, 'OpenStreetMap':osmLayer},{});
 
