@@ -35,6 +35,18 @@
 						margin: 0 0 5px;
 						color: #777;
 				}
+				.control {
+					padding: 6px 8px;
+					font: 14px/16px Arial, Helvetica, sans-serif;
+					background: white;
+					background: rgba(255,255,255,0.8);
+					box-shadow: 0 0 15px rgba(0,0,0,0.2);
+					border-radius: 5px;
+				}
+				.control h4 {
+				    margin: 0 0 5px;
+				    color: #777;
+				}
     </style>
 	</head>
 
@@ -112,6 +124,10 @@
 
 		info.addTo(map);
 		control.addTo(map);
+		var cipLayer = new L.LayerGroup();
+		var browardLayer = new L.LayerGroup();
+		var showCIP = true;
+		var showBroward = true;
 
 		function addLocations() {
 			var i = 0;
@@ -174,6 +190,7 @@
 
 		/** Code execution begins here */
 		addLocations();
+		addControlPane();
 		addGeoJsonCustom("ftl_pt_workprogram_2014_2018.geojson",
 		function (feature, layer) {
 			layer.bindPopup(
@@ -197,10 +214,12 @@
 					info.update()
 				}
 			});
+			marker.addTo(browardLayer);
     	return marker;
   	});
 
 		addGeoJsonStyleHighlightBroward("bwdco_ftl_const.geojson", function (feature, layer) {
+			layer.addTo(browardLayer);
 			layer.on({
         mouseover: highlightFeatureBroward,
         mouseout: resetHighlightBroward
@@ -247,11 +266,13 @@
 					info.update()
 				}
 			});
+			marker.addTo(cipLayer);
     	return marker;
   	});
 
 		addGeoJsonStyleHighlight("cip_projects_line.geojson",
 		function (feature, layer) {
+			layer.addTo(cipLayer);
 			layer.on({
         mouseover: highlightFeature,
         mouseout: resetHighlight
@@ -311,6 +332,39 @@
 		function resetHighlightBroward(e) {
 			geojsonHighlightBroward.resetStyle(e.target);
 			info.update();
+		}
+
+		function addControlPane() {
+			var control = L.control({position: 'bottomright'});
+			control.onAdd = function (map) {
+		    this._div = L.DomUtil.create('div', 'control'); // create a div with a class "control"
+		    this.update();
+		    return this._div;
+		  };
+
+			control.update = function () {
+		    this._div.innerHTML = '<h4>Filters</h4>'+
+		      '<br><button onclick="showAll()">All</button>'+
+		      '<br><button onclick="toggleCIP()">CIP</button>'+
+		      '<br><button onclick="toggleBroward()">Broward</button>';
+		  };
+
+			control.addTo(map);
+		}
+
+		function showAll() {
+			map.addLayer(cipLayer);
+			map.addLayer(browardLayer);
+		}
+
+		function toggleCIP() {
+			showCIP? map.removeLayer(cipLayer) : map.addLayer(cipLayer);
+			showCIP = !showCIP;
+		}
+
+		function toggleBroward() {
+			showBroward? map.removeLayer(browardLayer) : map.addLayer(browardLayer);
+			showBroward = !showBroward;
 		}
 
 		</script>
