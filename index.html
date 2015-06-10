@@ -51,6 +51,15 @@
 
 		L.control.layers({'Google Map':googleRoadmap, 'Google Satellite':googleHybrid, 'Google Traffic':googleTraffic, 'OpenStreetMap':osmLayer},{}).addTo(map);
 
+		var redMarker = L.AwesomeMarkers.icon({
+			icon: 'coffee',
+			markerColor: 'red'
+		});
+		var greenMarker = L.AwesomeMarkers.icon({
+			icon: 'coffee',
+			markerColor: 'green'
+		});
+
 		function addLocations() {
 			var i = 0;
 			for (i = 0; i < locations.length; i++) {
@@ -65,10 +74,6 @@
 		}
 
 		function addMarker(name, url, desc, lat, lng) {
-			var redMarker = L.AwesomeMarkers.icon({
-				icon: 'coffee',
-				markerColor: 'red'
-			});
 			var marker = L.marker([lat, lng], {icon: redMarker}).bindPopup(
 		      '<strong>' + name + '</strong><br><br>' + '<a href="' + url + '" target="blank">' + url + '</a>' + '<br><br>' +  desc,
 		      { offset: new L.Point(0, -22) }).addTo(map);
@@ -90,6 +95,24 @@
 		  });
 		}
 
+		function addGeoJsonCustom(location, displayFunction, pointFunction) {
+			$.getJSON(location, function(data) {
+				var geojson = L.geoJson(data, {
+		      onEachFeature: displayFunction,
+					pointToLayer: pointFunction });
+		    geojson.addTo(map);
+		  });
+		}
+
+		function addGeoJsonStyle(location, displayFunction, styleFunction) {
+			$.getJSON(location, function(data) {
+				var geojson = L.geoJson(data, {
+		      onEachFeature: displayFunction,
+					style: styleFunction });
+		    geojson.addTo(map);
+		  });
+		}
+
 		/** Code execution begins here */
 		addLocations();
 		addGeoJson("ftl_pt_workprogram_2014_2018.geojson", function (feature, layer) {
@@ -105,7 +128,7 @@
 				'<br>FY58WP: '+feature.properties.fy5wp);
 		});
 
-		addGeoJson("bwdco_ftl_const.geojson", function (feature, layer) {
+		addGeoJsonStyle("bwdco_ftl_const.geojson", function (feature, layer) {
 			layer.bindPopup(
 				'<strong>'+feature.properties.loc_desc+'</strong>'+
 				'<br><br>County: '+feature.properties.countydesc+
@@ -116,9 +139,20 @@
 				'<br>FY52: '+feature.properties.fy52+
 				'<br>FY58: '+feature.properties.fy58+
 				'<br>FY58WP: '+feature.properties.fy5wp);
+		},
+		function (feature) {
+			return {
+				fillColor: 'green',
+				weight: 3,
+        opacity: 1,
+        color: 'blue',
+        dashArray: '3',
+        fillOpacity: 0.7
+	    };
 		});
 
-		addGeoJson("cip_projects_pt.geojson", function (feature, layer) {
+		addGeoJsonCustom("cip_projects_pt.geojson",
+		function (feature, layer) {
 			layer.bindPopup(
 				'<strong>'+feature.properties.descriptio+'</strong>'+
 				'<br><br>FY: '+feature.properties.fy+
@@ -126,9 +160,13 @@
 				'<br>ID1: '+feature.properties.id_1+
 				'<br>Number: '+feature.properties.number+
 				'<br>Ex_Airport: '+feature.properties.ex_airport);
-		});
+		},
+		function (feature, latlng) {
+    	return L.marker(latlng, {icon: greenMarker});
+  	});
 
-		addGeoJson("cip_projects_line.geojson", function (feature, layer) {
+		addGeoJsonStyle("cip_projects_line.geojson",
+		function (feature, layer) {
 			layer.bindPopup(
 				'<strong>'+feature.properties.descriptio+'</strong>'+
 				'<br><br>FY: '+feature.properties.fy+
@@ -136,6 +174,16 @@
 				'<br>ID1: '+feature.properties.id_1+
 				'<br>Number: '+feature.properties.number+
 				'<br>Ex_Airport: '+feature.properties.ex_airport);
+		},
+		function (feature) {
+			return {
+				fillColor: 'green',
+				weight: 3,
+        opacity: 1,
+        color: 'red',
+        dashArray: '3',
+        fillOpacity: 0.7
+	    };
 		});
 
 		</script>
