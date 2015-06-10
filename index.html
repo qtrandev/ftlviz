@@ -5,7 +5,9 @@
 		<title>Fort Lauderdale Visualization</title>
 		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+		<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.css">
 		<link rel="stylesheet" href="dist/leaflet.awesome-markers.css">
+
 		<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
@@ -76,16 +78,20 @@
 		var control = L.control.layers({'Google Map':googleRoadmap, 'Google Satellite':googleHybrid, 'Google Traffic':googleTraffic, 'OpenStreetMap':osmLayer},{});
 
 		var redMarker = L.AwesomeMarkers.icon({
-			icon: 'coffee',
-			markerColor: 'red'
+			icon: 'star',
+			markerColor: 'red',
+			prefix: 'fa'
 		});
+
 		var greenMarker = L.AwesomeMarkers.icon({
-			icon: 'coffee',
-			markerColor: 'green'
+			icon: 'university',
+			markerColor: 'green',
+			prefix: 'fa'
 		});
 		var blueMarker = L.AwesomeMarkers.icon({
-			icon: 'coffee',
-			markerColor: 'blue'
+			icon: 'truck',
+			markerColor: 'blue',
+			prefix: 'fa'
 		});
 		var geojsonHighlight;
 		var geojsonHighlightBroward;
