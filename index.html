@@ -59,6 +59,8 @@
 			icon: 'coffee',
 			markerColor: 'green'
 		});
+		var geojsonHighlight;
+		var geojsonHighlightBroward;
 
 		function addLocations() {
 			var i = 0;
@@ -104,12 +106,21 @@
 		  });
 		}
 
-		function addGeoJsonStyle(location, displayFunction, styleFunction) {
+		function addGeoJsonStyleHighlightBroward(location, displayFunction, styleFunction) {
 			$.getJSON(location, function(data) {
-				var geojson = L.geoJson(data, {
+				geojsonHighlightBroward = L.geoJson(data, {
 		      onEachFeature: displayFunction,
 					style: styleFunction });
-		    geojson.addTo(map);
+				geojsonHighlightBroward.addTo(map);
+		  });
+		}
+
+		function addGeoJsonStyleHighlight(location, displayFunction, styleFunction) {
+			$.getJSON(location, function(data) {
+				geojsonHighlight = L.geoJson(data, {
+		      onEachFeature: displayFunction,
+					style: styleFunction });
+				geojsonHighlight.addTo(map);
 		  });
 		}
 
@@ -128,7 +139,11 @@
 				'<br>FY58WP: '+feature.properties.fy5wp);
 		});
 
-		addGeoJsonStyle("bwdco_ftl_const.geojson", function (feature, layer) {
+		addGeoJsonStyleHighlightBroward("bwdco_ftl_const.geojson", function (feature, layer) {
+			layer.on({
+        mouseover: highlightFeatureBroward,
+        mouseout: resetHighlightBroward
+			});
 			layer.bindPopup(
 				'<strong>'+feature.properties.loc_desc+'</strong>'+
 				'<br><br>County: '+feature.properties.countydesc+
@@ -165,8 +180,12 @@
     	return L.marker(latlng, {icon: greenMarker});
   	});
 
-		addGeoJsonStyle("cip_projects_line.geojson",
+		addGeoJsonStyleHighlight("cip_projects_line.geojson",
 		function (feature, layer) {
+			layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight
+			});
 			layer.bindPopup(
 				'<strong>'+feature.properties.descriptio+'</strong>'+
 				'<br><br>FY: '+feature.properties.fy+
@@ -185,6 +204,40 @@
         fillOpacity: 0.7
 	    };
 		});
+
+		function highlightFeature(e) {
+			var layer = e.target;
+	    layer.setStyle({
+	        weight: 7,
+	        color: 'green',
+	        dashArray: '7',
+	        fillOpacity: 0.7
+	    });
+	    if (!L.Browser.ie && !L.Browser.opera) {
+	        layer.bringToFront();
+	    }
+		}
+
+		function resetHighlight(e) {
+			geojsonHighlight.resetStyle(e.target);
+		}
+
+		function highlightFeatureBroward(e) {
+			var layer = e.target;
+	    layer.setStyle({
+	        weight: 7,
+	        color: 'green',
+	        dashArray: '7',
+	        fillOpacity: 0.7
+	    });
+	    if (!L.Browser.ie && !L.Browser.opera) {
+	        layer.bringToFront();
+	    }
+		}
+
+		function resetHighlightBroward(e) {
+			geojsonHighlightBroward.resetStyle(e.target);
+		}
 
 		</script>
 
