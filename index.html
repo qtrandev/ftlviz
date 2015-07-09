@@ -357,9 +357,9 @@
 
 			control.update = function () {
 		    this._div.innerHTML = '<h4>Filters</h4>'+
-		      '<br><button onclick="showAll()">All</button>'+
-		      '<br><button onclick="toggleCIP()">CIP</button>'+
-		      '<br><button onclick="toggleBroward()">Broward</button>';
+		      '<br><button type="button" class="btn btn-primary"  onclick="showAll()">All</button>'+
+		      '<br><br><button type="button" class="btn btn-primary"  onclick="toggleCIP()">CIP</button>'+
+		      '<br><br><button type="button" class="btn btn-primary"  onclick="toggleBroward()">Broward</button>';
 		  };
 
 			control.addTo(map);
