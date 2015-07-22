@@ -73,9 +73,18 @@
 		var googleRoadmap = new L.Google('ROADMAP', { maxZoom: 20 });
 		var googleHybrid = new L.Google('HYBRID', { maxZoom: 20 });
 		var googleTraffic = new L.GoogleTraffic('ROADMAP', { maxZoom: 20 });
+		var cipPointsLayer = new L.LayerGroup();
+		var browardPointsLayer = new L.LayerGroup();
+		var cipRoadsLayer = new L.LayerGroup();
+		var browardRoadsLayer = new L.LayerGroup();
 		map.addLayer(googleTraffic);
 
-		var control = L.control.layers({'Google Map':googleRoadmap, 'Google Satellite':googleHybrid, 'Google Traffic':googleTraffic, 'OpenStreetMap':osmLayer},{});
+		var control = L.control.layers({'Google Map':googleRoadmap, 'Google Satellite':googleHybrid, 'Google Traffic':googleTraffic, 'OpenStreetMap':osmLayer},{
+			'CIP (Capital Improvement Plan) Points': cipPointsLayer,
+			'CIP (Capital Improvement Plan) Roads': cipRoadsLayer,
+			'Broward Construction Programs Points': browardPointsLayer,
+			'Broward Construction Programs Roads': browardRoadsLayer
+		});
 
 		var redMarker = L.AwesomeMarkers.icon({
 			icon: 'star',
@@ -127,20 +136,22 @@
 				display = display + '<br><b>' + desc + '</b>' +
 					'<br>' + details;
 			} else {
-				display = display + '<br>Hover over a road or marker';
+				display = display + '<br>Hover over or click a road or marker';
 			}
 			this._div.innerHTML = display;
 		};
 
 		info.addTo(map);
 		control.addTo(map);
-		var cipLayer = new L.LayerGroup();
-		var browardLayer = new L.LayerGroup();
-		// Add layers to map
-		map.addLayer(cipLayer);
-		map.addLayer(browardLayer);
-		var showCIP = true;
-		var showBroward = true;
+		// Add layers to map for toggling hide/show
+		map.addLayer(cipPointsLayer);
+		map.addLayer(browardPointsLayer);
+		map.addLayer(cipRoadsLayer);
+		map.addLayer(browardRoadsLayer);
+		var showCipPoints = true;
+		var showBrowardPoints = true;
+		var showCipRoads = true;
+		var showBrowardRoads = true;
 
 		function addLocations() {
 			var i = 0;
@@ -227,12 +238,12 @@
 					info.update()
 				}
 			});
-			marker.addTo(browardLayer);
+			marker.addTo(browardPointsLayer);
     	return marker;
   	});
 
 		addGeoJsonStyleHighlightBroward("bwdco_ftl_const.geojson", function (feature, layer) {
-			layer.addTo(browardLayer);
+			layer.addTo(browardRoadsLayer);
 			layer.on({
         mouseover: highlightFeatureBroward,
         mouseout: resetHighlightBroward
@@ -279,13 +290,13 @@
 					info.update()
 				}
 			});
-			marker.addTo(cipLayer);
+			marker.addTo(cipPointsLayer);
     	return marker;
   	});
 
 		addGeoJsonStyleHighlight("cip_projects_line.geojson",
 		function (feature, layer) {
-			layer.addTo(cipLayer);
+			layer.addTo(cipRoadsLayer);
 			layer.on({
         mouseover: highlightFeature,
         mouseout: resetHighlight
@@ -357,27 +368,45 @@
 
 			control.update = function () {
 		    this._div.innerHTML = '<h4>Filters</h4>'+
-		      '<br><button type="button" class="btn btn-primary"  onclick="showAll()">All</button>'+
-		      '<br><br><button type="button" class="btn btn-primary"  onclick="toggleCIP()">CIP</button>'+
-		      '<br><br><button type="button" class="btn btn-primary"  onclick="toggleBroward()">Broward</button>';
+				'<br><button type="button" class="btn btn-primary"  onclick="showAll()">All</button>'+
+				'<br><br><button type="button" class="btn btn-primary"  onclick="toggleCipPoints()">CIP Points</button>'+
+				'<br><br><button type="button" class="btn btn-primary"  onclick="toggleCipRoads()">CIP Roads</button>'+
+				'<br><br><button type="button" class="btn btn-primary"  onclick="toggleBrowardPoints()">Broward Points</button>'+
+				'<br><br><button type="button" class="btn btn-primary"  onclick="toggleBrowardRoads()">Broward Roads</button>';
 		  };
 
 			control.addTo(map);
 		}
 
 		function showAll() {
-			map.addLayer(cipLayer);
-			map.addLayer(browardLayer);
+			map.addLayer(cipPointsLayer);
+			map.addLayer(browardPointsLayer);
+			map.addLayer(cipRoadsLayer);
+			map.addLayer(browardRoadsLayer);
+			showCipPoints = true;
+			showBrowardPoints = true;
+			showCipRoads = true;
+			showBrowardRoads = true;
 		}
 
-		function toggleCIP() {
-			showCIP? map.removeLayer(cipLayer) : map.addLayer(cipLayer);
-			showCIP = !showCIP;
+		function toggleCipPoints() {
+			showCipPoints? map.removeLayer(cipPointsLayer) : map.addLayer(cipPointsLayer);
+			showCipPoints = !showCipPoints;
 		}
 
-		function toggleBroward() {
-			showBroward? map.removeLayer(browardLayer) : map.addLayer(browardLayer);
-			showBroward = !showBroward;
+		function toggleCipRoads() {
+			showCipRoads? map.removeLayer(cipRoadsLayer) : map.addLayer(cipRoadsLayer);
+			showCipRoads = !showCipRoads;
+		}
+
+		function toggleBrowardPoints() {
+			showBrowardPoints? map.removeLayer(browardPointsLayer) : map.addLayer(browardPointsLayer);
+			showBrowardPoints = !showBrowardPoints;
+		}
+
+		function toggleBrowardRoads() {
+			showBrowardRoads? map.removeLayer(browardRoadsLayer) : map.addLayer(browardRoadsLayer);
+			showBrowardRoads = !showBrowardRoads;
 		}
 
 		</script>
