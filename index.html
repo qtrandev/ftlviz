@@ -88,7 +88,7 @@
       'Broward Construction Programs Roads': browardRoadsLayer
     });
 
-    var controlSearch = new L.Control.Search({layer: browardPointsLayer, initial: false, position:'topleft'});
+    var controlSearch = new L.Control.Search({layer: browardPointsLayer, text:'Description...', initial: false, position:'topleft', collapsed: false});
     map.addControl( controlSearch );
 
     var redMarker = L.AwesomeMarkers.icon({
