@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.css">
     <link rel="stylesheet" href="dist/leaflet.awesome-markers.css">
+    <link rel="stylesheet" href="leaflet-search/leaflet-search.min.css">
 
     <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
@@ -15,6 +16,7 @@
     <script src="Google.js"></script>
     <script src="GoogleTraffic.js"></script>
     <script src="dist/leaflet.awesome-markers.js"></script>
+    <script src="leaflet-search/leaflet-search.min.js"></script>
 
     <style>
         body {
@@ -85,6 +87,9 @@
       'Broward Construction Programs Points': browardPointsLayer,
       'Broward Construction Programs Roads': browardRoadsLayer
     });
+
+    var controlSearch = new L.Control.Search({layer: browardPointsLayer, initial: false, position:'topleft'});
+    map.addControl( controlSearch );
 
     var redMarker = L.AwesomeMarkers.icon({
       icon: 'star',
@@ -229,7 +234,7 @@
         '<br>FY58WP: '+feature.properties.fy5wp);
     },
     function (feature, latlng) {
-      var marker = L.marker(latlng, {icon: blueMarker})
+      var marker = L.marker(latlng, {icon: blueMarker, title: feature.properties.loc_desc})
       marker.on({
         mouseover: function (e) {
           info.update(e.target.feature.properties)
