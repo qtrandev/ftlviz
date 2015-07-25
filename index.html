@@ -182,14 +182,6 @@
       { name: "Code for Fort Lauderdale", url: "http://www.codeforftl.org", desc: "Code for Fort Lauderdale!" , lat: 26.0802, lng: -80.243259},
     ];
 
-    function addGeoJson(location, displayFunction) {
-      $.getJSON(location, function(data) {
-        var geojson = L.geoJson(data, {
-          onEachFeature: displayFunction });
-        geojson.addTo(map);
-      });
-    }
-
     function addGeoJsonCustom(location, displayFunction, pointFunction) {
       $.getJSON(location, function(data) {
         var geojson = L.geoJson(data, {
@@ -208,7 +200,7 @@
       });
     }
 
-    function addGeoJsonStyleHighlight(location, displayFunction, styleFunction) {
+    function addGeoJsonStyleHighlightCIP(location, displayFunction, styleFunction) {
       $.getJSON(location, function(data) {
         geojsonHighlight = L.geoJson(data, {
           onEachFeature: displayFunction,
@@ -299,7 +291,7 @@
       return marker;
     });
 
-    addGeoJsonStyleHighlight("cip_projects_line.geojson",
+    addGeoJsonStyleHighlightCIP("cip_projects_line.geojson",
     function (feature, layer) {
       layer.addTo(cipRoadsLayer);
       layer.on({
