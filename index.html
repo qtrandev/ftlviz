@@ -31,7 +31,7 @@
           padding: 6px 8px;
           font: 14px/16px Arial, Helvetica, sans-serif;
           background: white;
-          background: rgba(255,255,255,0.8);
+          background: rgba(255,255,255,0.9);
           box-shadow: 0 0 15px rgba(0,0,0,0.2);
           border-radius: 5px;
         }
@@ -43,7 +43,7 @@
           padding: 6px 8px;
           font: 14px/16px Arial, Helvetica, sans-serif;
           background: white;
-          background: rgba(255,255,255,0.8);
+          background: rgba(255,255,255,0.9);
           box-shadow: 0 0 15px rgba(0,0,0,0.2);
           border-radius: 5px;
         }
@@ -185,10 +185,17 @@
             '<br>FY32: ' + props.fy32 +
             '<br>FY52: ' + props.fy52 +
             '<br>FY58: ' + props.fy58 +
-            '<br>FY58WP: ' + props.fy5wp;
+            '<br>FY5WP: ' + props.fy5wp+
+            '<br>WorkMix: '+props.workmix+
+            '<br>TranSyst_1: '+props.transyst_1+
+            '<br>Project Phase: '+props.project_ph+
+            '<br>EstimatedW: '+props.estimatedw+
+            '<br>Estimate_1: '+props.estimate_1;
         } else {
           desc = props.descriptio;
-          details = props.fy;
+          details = props.fy +
+          '<br>' + props.id +
+          '<br>' + props.number;
         }
         display = display + '<br><b>' + desc + '</b>' +
           '<br>' + details;
@@ -275,7 +282,28 @@
         '<br>FY32: '+feature.properties.fy32+
         '<br>FY52: '+feature.properties.fy52+
         '<br>FY58: '+feature.properties.fy58+
-        '<br>FY58WP: '+feature.properties.fy5wp);
+        '<br>FY5WP: '+feature.properties.fy5wp+
+        '<br>Project Phase: '+feature.properties.project_ph+
+        '<br>EstimatedW: '+feature.properties.estimatedw+
+        '<br>Estimate_1: '+feature.properties.estimate_1+
+        '<br>Object ID: '+feature.properties.objectid+
+        '<br>Version: '+feature.properties.version+
+        '<br>Item Segment: '+feature.properties.item_seg+
+        '<br>Project Status: '+feature.properties.proj_statu+
+        '<br>ConClassDe: '+feature.properties.conclassde+
+        '<br>TranSyst_1: '+feature.properties.transyst_1+
+        '<br>WorkMix: '+feature.properties.workmix+
+        '<br>RDWYID: '+feature.properties.rdwyid+
+        '<br>fm_mp_from: '+feature.properties.fm_mp_from+
+        '<br>fm_mp_to: '+feature.properties.fm_mp_to+
+        '<br>SEAPRTID: '+feature.properties.seaprtid+
+        '<br>AIRPTSIT: '+feature.properties.airptsit+
+        '<br>fm_bridge_: '+feature.properties.fm_bridge_+
+        '<br>SIS: '+feature.properties.sis+
+        '<br>RRR: '+feature.properties.rrr+
+        '<br>LAP: '+feature.properties.lap+
+        '<br>JPA: '+feature.properties.jpa
+      );
     },
     function (feature, latlng) {
       var marker = L.marker(latlng, {icon: blueMarker, title: feature.properties.loc_desc})
@@ -310,7 +338,28 @@
         '<br>FY32: '+feature.properties.fy32+
         '<br>FY52: '+feature.properties.fy52+
         '<br>FY58: '+feature.properties.fy58+
-        '<br>FY58WP: '+feature.properties.fy5wp);
+        '<br>FY5WP: '+feature.properties.fy5wp+
+        '<br>Project Phase: '+feature.properties.project_ph+
+        '<br>EstimatedW: '+feature.properties.estimatedw+
+        '<br>Estimate_1: '+feature.properties.estimate_1+
+        '<br>Object ID: '+feature.properties.objectid+
+        '<br>Version: '+feature.properties.version+
+        '<br>Item Segment: '+feature.properties.item_seg+
+        '<br>Project Status: '+feature.properties.proj_statu+
+        '<br>ConClassDe: '+feature.properties.conclassde+
+        '<br>TranSyst_1: '+feature.properties.transyst_1+
+        '<br>WorkMix: '+feature.properties.workmix+
+        '<br>RDWYID: '+feature.properties.rdwyid+
+        '<br>fm_mp_from: '+feature.properties.fm_mp_from+
+        '<br>fm_mp_to: '+feature.properties.fm_mp_to+
+        '<br>SEAPRTID: '+feature.properties.seaprtid+
+        '<br>AIRPTSIT: '+feature.properties.airptsit+
+        '<br>fm_bridge_: '+feature.properties.fm_bridge_+
+        '<br>SIS: '+feature.properties.sis+
+        '<br>RRR: '+feature.properties.rrr+
+        '<br>LAP: '+feature.properties.lap+
+        '<br>JPA: '+feature.properties.jpa
+      );
     },
     function (feature) {
       return {
