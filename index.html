@@ -31,7 +31,7 @@
           padding: 6px 8px;
           font: 14px/16px Arial, Helvetica, sans-serif;
           background: white;
-          background: rgba(255,255,255,0.8);
+          background: rgba(255,255,255,0.9);
           box-shadow: 0 0 15px rgba(0,0,0,0.2);
           border-radius: 5px;
         }
@@ -43,7 +43,7 @@
           padding: 6px 8px;
           font: 14px/16px Arial, Helvetica, sans-serif;
           background: white;
-          background: rgba(255,255,255,0.8);
+          background: rgba(255,255,255,0.9);
           box-shadow: 0 0 15px rgba(0,0,0,0.2);
           border-radius: 5px;
         }
@@ -52,10 +52,61 @@
             color: #777;
         }
     </style>
+
+    <!-- Styles for menu to filter by year -->
+    <style>
+    .menu-ui {
+      background:#fff;
+      position:absolute;
+      bottom:30px;left:10px;
+      z-index:1;
+      border-radius:3px;
+      width:120px;
+      border:1px solid rgba(0,0,0,0.4);
+    }
+    .menu-ui a {
+      font-size:13px;
+      color:#404040;
+      display:block;
+      margin:0;padding:0;
+      padding:10px;
+      text-decoration:none;
+      border-bottom:1px solid rgba(0,0,0,0.25);
+      text-align:center;
+    }
+    .menu-ui a:first-child {
+      border-radius:3px 3px 0 0;
+    }
+    .menu-ui a:last-child {
+      border:none;
+      border-radius:0 0 3px 3px;
+    }
+    .menu-ui a:hover {
+      background:#f8f8f8;
+      color:#404040;
+    }
+    .menu-ui a.active,
+    .menu-ui a.active:hover {
+      background:#3887BE;
+      color:#FFF;
+    }
+    </style>
   </head>
 
   <body >
     <div id="map"></div>
+
+    <nav class='menu-ui'>
+      <a href='#' class='active' data-filter='all'>Show All</a>
+      <a href='#' data-filter='2013'>2013</a>
+      <a href='#' data-filter='2014'>2014</a>
+      <a href='#' data-filter='2015'>2015</a>
+      <a href='#' data-filter='2016'>2016</a>
+      <a href='#' data-filter='2017'>2017</a>
+      <a href='#' data-filter='2018'>2018</a>
+      <a href='#' data-filter='2019'>2019</a>
+      <a href='#' data-filter='0'>Other</a>
+    </nav>
 
     <script>
 
@@ -79,6 +130,7 @@
     var browardPointsLayer = new L.LayerGroup();
     var cipRoadsLayer = new L.LayerGroup();
     var browardRoadsLayer = new L.LayerGroup();
+    var browardMarkerList = [];
     map.addLayer(googleTraffic);
 
     var control = L.control.layers({'Google Map':googleRoadmap, 'Google Satellite':googleHybrid, 'Google Traffic':googleTraffic, 'OpenStreetMap':osmLayer},{
@@ -133,10 +185,17 @@
             '<br>FY32: ' + props.fy32 +
             '<br>FY52: ' + props.fy52 +
             '<br>FY58: ' + props.fy58 +
-            '<br>FY58WP: ' + props.fy5wp;
+            '<br>FY5WP: ' + props.fy5wp+
+            '<br>WorkMix: '+props.workmix+
+            '<br>TranSyst_1: '+props.transyst_1+
+            '<br>Project Phase: '+props.project_ph+
+            '<br>EstimatedW: '+props.estimatedw+
+            '<br>Estimate_1: '+props.estimate_1;
         } else {
           desc = props.descriptio;
-          details = props.fy;
+          details = props.fy +
+          '<br>' + props.id +
+          '<br>' + props.number;
         }
         display = display + '<br><b>' + desc + '</b>' +
           '<br>' + details;
@@ -182,14 +241,6 @@
       { name: "Code for Fort Lauderdale", url: "http://www.codeforftl.org", desc: "Code for Fort Lauderdale!" , lat: 26.0802, lng: -80.243259},
     ];
 
-    function addGeoJson(location, displayFunction) {
-      $.getJSON(location, function(data) {
-        var geojson = L.geoJson(data, {
-          onEachFeature: displayFunction });
-        geojson.addTo(map);
-      });
-    }
-
     function addGeoJsonCustom(location, displayFunction, pointFunction) {
       $.getJSON(location, function(data) {
         var geojson = L.geoJson(data, {
@@ -208,7 +259,7 @@
       });
     }
 
-    function addGeoJsonStyleHighlight(location, displayFunction, styleFunction) {
+    function addGeoJsonStyleHighlightCIP(location, displayFunction, styleFunction) {
       $.getJSON(location, function(data) {
         geojsonHighlight = L.geoJson(data, {
           onEachFeature: displayFunction,
@@ -231,7 +282,28 @@
         '<br>FY32: '+feature.properties.fy32+
         '<br>FY52: '+feature.properties.fy52+
         '<br>FY58: '+feature.properties.fy58+
-        '<br>FY58WP: '+feature.properties.fy5wp);
+        '<br>FY5WP: '+feature.properties.fy5wp+
+        '<br>Project Phase: '+feature.properties.project_ph+
+        '<br>EstimatedW: '+feature.properties.estimatedw+
+        '<br>Estimate_1: '+feature.properties.estimate_1+
+        '<br>Object ID: '+feature.properties.objectid+
+        '<br>Version: '+feature.properties.version+
+        '<br>Item Segment: '+feature.properties.item_seg+
+        '<br>Project Status: '+feature.properties.proj_statu+
+        '<br>ConClassDe: '+feature.properties.conclassde+
+        '<br>TranSyst_1: '+feature.properties.transyst_1+
+        '<br>WorkMix: '+feature.properties.workmix+
+        '<br>RDWYID: '+feature.properties.rdwyid+
+        '<br>fm_mp_from: '+feature.properties.fm_mp_from+
+        '<br>fm_mp_to: '+feature.properties.fm_mp_to+
+        '<br>SEAPRTID: '+feature.properties.seaprtid+
+        '<br>AIRPTSIT: '+feature.properties.airptsit+
+        '<br>fm_bridge_: '+feature.properties.fm_bridge_+
+        '<br>SIS: '+feature.properties.sis+
+        '<br>RRR: '+feature.properties.rrr+
+        '<br>LAP: '+feature.properties.lap+
+        '<br>JPA: '+feature.properties.jpa
+      );
     },
     function (feature, latlng) {
       var marker = L.marker(latlng, {icon: blueMarker, title: feature.properties.loc_desc})
@@ -243,6 +315,10 @@
           info.update()
         }
       });
+      if (browardMarkerList[feature.properties.fy52] === undefined) {
+        browardMarkerList[feature.properties.fy52] = [];
+      }
+      browardMarkerList[feature.properties.fy52].push(marker);
       marker.addTo(browardPointsLayer);
       return marker;
     });
@@ -262,7 +338,28 @@
         '<br>FY32: '+feature.properties.fy32+
         '<br>FY52: '+feature.properties.fy52+
         '<br>FY58: '+feature.properties.fy58+
-        '<br>FY58WP: '+feature.properties.fy5wp);
+        '<br>FY5WP: '+feature.properties.fy5wp+
+        '<br>Project Phase: '+feature.properties.project_ph+
+        '<br>EstimatedW: '+feature.properties.estimatedw+
+        '<br>Estimate_1: '+feature.properties.estimate_1+
+        '<br>Object ID: '+feature.properties.objectid+
+        '<br>Version: '+feature.properties.version+
+        '<br>Item Segment: '+feature.properties.item_seg+
+        '<br>Project Status: '+feature.properties.proj_statu+
+        '<br>ConClassDe: '+feature.properties.conclassde+
+        '<br>TranSyst_1: '+feature.properties.transyst_1+
+        '<br>WorkMix: '+feature.properties.workmix+
+        '<br>RDWYID: '+feature.properties.rdwyid+
+        '<br>fm_mp_from: '+feature.properties.fm_mp_from+
+        '<br>fm_mp_to: '+feature.properties.fm_mp_to+
+        '<br>SEAPRTID: '+feature.properties.seaprtid+
+        '<br>AIRPTSIT: '+feature.properties.airptsit+
+        '<br>fm_bridge_: '+feature.properties.fm_bridge_+
+        '<br>SIS: '+feature.properties.sis+
+        '<br>RRR: '+feature.properties.rrr+
+        '<br>LAP: '+feature.properties.lap+
+        '<br>JPA: '+feature.properties.jpa
+      );
     },
     function (feature) {
       return {
@@ -299,7 +396,7 @@
       return marker;
     });
 
-    addGeoJsonStyleHighlight("cip_projects_line.geojson",
+    addGeoJsonStyleHighlightCIP("cip_projects_line.geojson",
     function (feature, layer) {
       layer.addTo(cipRoadsLayer);
       layer.on({
@@ -413,6 +510,32 @@
       showBrowardRoads? map.removeLayer(browardRoadsLayer) : map.addLayer(browardRoadsLayer);
       showBrowardRoads = !showBrowardRoads;
     }
+
+    $('.menu-ui a').on('click', function() {
+      // For each filter link, get the 'data-filter' attribute value.
+      var filter = $(this).data('filter');
+      $(this).addClass('active').siblings().removeClass('active');
+      // If the filter is All, then all markers are shown, else they are hidden
+      var notShowAll = (filter !== 'all');
+      for (var yearIndex in browardMarkerList) {
+        var yearMarkers = browardMarkerList[yearIndex];
+        for (var markerIndex in yearMarkers) {
+          if (notShowAll) {
+            map.removeLayer(yearMarkers[markerIndex]);
+          } else {
+            map.addLayer(yearMarkers[markerIndex]);
+          }
+        }
+      }
+      // Enable specific markers for the year if filter is not All
+      if (notShowAll) {
+        var yearMarkers = browardMarkerList[filter];
+        for (var markerIndex in yearMarkers) {
+          map.addLayer(yearMarkers[markerIndex]);
+        }
+      }
+      return false;
+    });
 
     </script>
 
