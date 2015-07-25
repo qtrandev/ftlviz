@@ -52,10 +52,60 @@
             color: #777;
         }
     </style>
+
+    <!-- Styles for menu to filter by year -->
+    <style>
+    .menu-ui {
+      background:#fff;
+      position:absolute;
+      bottom:30px;left:10px;
+      z-index:1;
+      border-radius:3px;
+      width:120px;
+      border:1px solid rgba(0,0,0,0.4);
+    }
+    .menu-ui a {
+      font-size:13px;
+      color:#404040;
+      display:block;
+      margin:0;padding:0;
+      padding:10px;
+      text-decoration:none;
+      border-bottom:1px solid rgba(0,0,0,0.25);
+      text-align:center;
+    }
+    .menu-ui a:first-child {
+      border-radius:3px 3px 0 0;
+    }
+    .menu-ui a:last-child {
+      border:none;
+      border-radius:0 0 3px 3px;
+    }
+    .menu-ui a:hover {
+      background:#f8f8f8;
+      color:#404040;
+    }
+    .menu-ui a.active,
+    .menu-ui a.active:hover {
+      background:#3887BE;
+      color:#FFF;
+    }
+    </style>
   </head>
 
   <body >
     <div id="map"></div>
+
+    <nav class='menu-ui'>
+      <a href='#' class='active' data-filter='all'>Show All</a>
+      <a href='#' data-filter='2013'>2013</a>
+      <a href='#' data-filter='2014'>2014</a>
+      <a href='#' data-filter='2015'>2015</a>
+      <a href='#' data-filter='2016'>2016</a>
+      <a href='#' data-filter='2017'>2017</a>
+      <a href='#' data-filter='2018'>2018</a>
+      <a href='#' data-filter='2019'>2019</a>
+    </nav>
 
     <script>
 
@@ -79,6 +129,7 @@
     var browardPointsLayer = new L.LayerGroup();
     var cipRoadsLayer = new L.LayerGroup();
     var browardRoadsLayer = new L.LayerGroup();
+    var browardMarkerList = [];
     map.addLayer(googleTraffic);
 
     var control = L.control.layers({'Google Map':googleRoadmap, 'Google Satellite':googleHybrid, 'Google Traffic':googleTraffic, 'OpenStreetMap':osmLayer},{
@@ -235,6 +286,10 @@
           info.update()
         }
       });
+      if (browardMarkerList[feature.properties.fy52] === undefined) {
+        browardMarkerList[feature.properties.fy52] = [];
+      }
+      browardMarkerList[feature.properties.fy52].push(marker);
       marker.addTo(browardPointsLayer);
       return marker;
     });
@@ -405,6 +460,32 @@
       showBrowardRoads? map.removeLayer(browardRoadsLayer) : map.addLayer(browardRoadsLayer);
       showBrowardRoads = !showBrowardRoads;
     }
+
+    $('.menu-ui a').on('click', function() {
+      // For each filter link, get the 'data-filter' attribute value.
+      var filter = $(this).data('filter');
+      $(this).addClass('active').siblings().removeClass('active');
+      // If the filter is All, then all markers are shown, else they are hidden
+      var notShowAll = (filter !== 'all');
+      for (var yearIndex in browardMarkerList) {
+        var yearMarkers = browardMarkerList[yearIndex];
+        for (var markerIndex in yearMarkers) {
+          if (notShowAll) {
+            map.removeLayer(yearMarkers[markerIndex]);
+          } else {
+            map.addLayer(yearMarkers[markerIndex]);
+          }
+        }
+      }
+      // Enable specific markers for the year if filter is not All
+      if (notShowAll) {
+        var yearMarkers = browardMarkerList[filter];
+        for (var markerIndex in yearMarkers) {
+          map.addLayer(yearMarkers[markerIndex]);
+        }
+      }
+      return false;
+    });
 
     </script>
 
