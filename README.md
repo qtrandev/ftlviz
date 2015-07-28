@@ -1,7 +1,11 @@
 # Fort Lauderdale Traffic Visualization
 
 ## What
-Traffic visualization for the City of Fort Lauderdale.
+Traffic visualization for the City of Fort Lauderdale, concentrating on traffic backups.
+## Who
+Information supplied by City of Fort Lauderdale to be used by Broward County residents.
+## Why
+To allow travelers to avoid traffic backups.
 #### Status
 Beta
 
