@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.css">
     <link rel="stylesheet" href="dist/leaflet.awesome-markers.css">
     <link rel="stylesheet" href="leaflet-search/leaflet-search.min.css">
+    <link rel="stylesheet" href="nouislider/nouislider.min.css" />
 
     <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
@@ -17,6 +18,7 @@
     <script src="GoogleTraffic.js"></script>
     <script src="dist/leaflet.awesome-markers.js"></script>
     <script src="leaflet-search/leaflet-search.min.js"></script>
+    <script src="nouislider/nouislider.min.js"></script>
 
     <style>
         body {
@@ -58,7 +60,7 @@
     .menu-ui {
       background:#fff;
       position:absolute;
-      bottom:30px;left:10px;
+      bottom:40px;left:10px;
       z-index:1;
       border-radius:3px;
       width:120px;
@@ -90,6 +92,12 @@
       background:#3887BE;
       color:#FFF;
     }
+
+    #slider {
+      position:absolute;
+      bottom:10px;left:10px;
+      width:200px;
+    }
     </style>
   </head>
 
@@ -107,6 +115,8 @@
       <a href='#' data-filter='2019'>2019</a>
       <a href='#' data-filter='0'>Other</a>
     </nav>
+
+    <div class="noUi-base" id="slider"></div>
 
     <script>
 
@@ -142,6 +152,37 @@
 
     var controlSearch = new L.Control.Search({layer: browardPointsLayer, text:'Search descriptions...', initial: false, autoResize: false, position:'topleft', collapsed: false});
     map.addControl( controlSearch );
+
+    var slider = document.getElementById('slider');
+
+    noUiSlider.create(slider, {
+    	start: [2013, 2019],
+    	connect: true,
+      step: 1,
+    	range: {
+    		'min': 2013,
+    		'max': 2019
+    	}
+    });
+
+    slider.noUiSlider.on('change', function(){
+      years = slider.noUiSlider.get();
+      handleSlideYear(Math.round(years[0]), Math.round(years[1]));
+    });
+
+    function handleSlideYear(year0, year1) {
+      for (var yearIndex in browardMarkerList) {
+        var show = (yearIndex >= year0 && yearIndex <=year1);
+        var yearMarkers = browardMarkerList[yearIndex];
+        for (var markerIndex in yearMarkers) {
+          if (show) {
+            map.addLayer(yearMarkers[markerIndex]);
+          } else {
+            map.removeLayer(yearMarkers[markerIndex]);
+          }
+        }
+      }
+    }
 
     var redMarker = L.AwesomeMarkers.icon({
       icon: 'star',
