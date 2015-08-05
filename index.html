@@ -60,7 +60,7 @@
     .menu-ui {
       background:#fff;
       position:absolute;
-      bottom:40px;left:10px;
+      bottom:80px;left:10px;
       z-index:1;
       border-radius:3px;
       width:120px;
@@ -93,10 +93,10 @@
       color:#FFF;
     }
 
-    #slider {
+    #sliderGroup {
       position:absolute;
       bottom:10px;left:10px;
-      width:200px;
+      width:300px;
     }
     </style>
   </head>
@@ -105,7 +105,7 @@
     <div id="map"></div>
 
     <nav class='menu-ui'>
-      <a href='#' class='active' data-filter='all'>Show All</a>
+      <a href='#' class='active' data-filter='all'>Show All (FY52)</a>
       <a href='#' data-filter='2013'>2013</a>
       <a href='#' data-filter='2014'>2014</a>
       <a href='#' data-filter='2015'>2015</a>
@@ -116,7 +116,11 @@
       <a href='#' data-filter='0'>Other</a>
     </nav>
 
-    <div class="noUi-base" id="slider"></div>
+    <div id="sliderGroup">
+      <div class="noUi-base" id="slider"></div>
+      <span id="event-start">December 2012</span> to
+      <span id="event-stop">December 2019</span>
+    </div>
 
     <script>
 
@@ -156,29 +160,68 @@
     var slider = document.getElementById('slider');
 
     noUiSlider.create(slider, {
-    	start: [2013, 2019],
+    	start: [timestamp('2013'), timestamp('2020')],
     	connect: true,
-      step: 1,
+      step: 365 * 24 * 60 * 60 * 1000, // 1 year
     	range: {
-    		'min': 2013,
-    		'max': 2019
+    		'min': timestamp('2013'),
+    		'max': timestamp('2020')
     	}
     });
 
     slider.noUiSlider.on('change', function(){
-      years = slider.noUiSlider.get();
-      handleSlideYear(Math.round(years[0]), Math.round(years[1]));
+      times = slider.noUiSlider.get();
+      document.getElementById('event-start').innerHTML = formatDate(new Date(Math.round(times[0])));
+      document.getElementById('event-stop').innerHTML = formatDate(new Date(Math.round(times[1])));
+      handleSlideYear(times[0], times[1]);
     });
 
-    function handleSlideYear(year0, year1) {
+    function timestamp(str){
+      return new Date(str).getTime();
+    }
+
+    function formatDate ( date ) {
+      return months[date.getMonth()] + " " +
+          date.getFullYear();
+    }
+
+    var
+    	weekdays = [
+    		"Sunday", "Monday", "Tuesday",
+    		"Wednesday", "Thursday", "Friday",
+    		"Saturday"
+    	],
+    	months = [
+    		"January", "February", "March",
+    		"April", "May", "June", "July",
+    		"August", "September", "October",
+    		"November", "December"
+    	];
+
+      // Append a suffix to dates.
+      // Example: 23 => 23rd, 1 => 1st.
+      function nth (d) {
+        if(d>3 && d<21) return 'th';
+        switch (d % 10) {
+              case 1:  return "st";
+              case 2:  return "nd";
+              case 3:  return "rd";
+              default: return "th";
+          }
+      }
+
+    function handleSlideYear(time0, time1) {
       for (var yearIndex in browardMarkerList) {
-        var show = (yearIndex >= year0 && yearIndex <=year1);
         var yearMarkers = browardMarkerList[yearIndex];
         for (var markerIndex in yearMarkers) {
+          var foundMarker = yearMarkers[markerIndex];
+          var startTime = foundMarker.options.startTime;
+          var stopTime = foundMarker.options.stopTime;
+          var show = (startTime >= time0 && stopTime <=time1);
           if (show) {
-            map.addLayer(yearMarkers[markerIndex]);
+            map.addLayer(foundMarker);
           } else {
-            map.removeLayer(yearMarkers[markerIndex]);
+            map.removeLayer(foundMarker);
           }
         }
       }
@@ -347,7 +390,10 @@
       );
     },
     function (feature, latlng) {
-      var marker = L.marker(latlng, {icon: blueMarker, title: feature.properties.loc_desc})
+      var marker = L.marker(latlng, {icon: blueMarker,
+        title: feature.properties.loc_desc,
+        startTime: new Date(feature.properties.estimatedw),
+        stopTime: new Date(feature.properties.estimate_1)})
       marker.on({
         mouseover: function (e) {
           info.update(e.target.feature.properties)
