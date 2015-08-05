@@ -7,7 +7,9 @@ Information supplied by City of Fort Lauderdale to be used by Broward County res
 ## Why
 To allow travelers to avoid traffic backups.
 ## Why this has been created:
-To help residents of the Fort Lauderdale area avoid traffic backups and save travel time. 
+To help residents of the Fort Lauderdale area avoid traffic backups and save travel time.
+## Screenshots:
+None at the present
 #### Status
 Beta
 ### Created by:
