@@ -10,6 +10,8 @@ To allow travelers to avoid traffic backups.
 To help residents of the Fort Lauderdale area avoid traffic backups and save travel time.
 ## Screenshots:
 None at the present
+### Installations needed:
+None
 #### Status:
 Beta
 ### Created by:
