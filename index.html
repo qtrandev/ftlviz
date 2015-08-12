@@ -144,6 +144,8 @@
     var browardPointsLayer = new L.LayerGroup();
     var cipRoadsLayer = new L.LayerGroup();
     var browardRoadsLayer = new L.LayerGroup();
+    var ftlMotLayer = new L.LayerGroup();
+    var ftlBoundaryLayer = new L.LayerGroup();
     var browardMarkerList = [];
     map.addLayer(googleTraffic);
 
@@ -151,7 +153,9 @@
       'CIP (Capital Improvement Plan) Points': cipPointsLayer,
       'CIP (Capital Improvement Plan) Roads': cipRoadsLayer,
       'Broward Construction Programs Points': browardPointsLayer,
-      'Broward Construction Programs Roads': browardRoadsLayer
+      'Broward Construction Programs Roads': browardRoadsLayer,
+      'FTL Maintenance of Traffic': ftlMotLayer,
+      'FTL Boundary': ftlBoundaryLayer
     });
 
     var controlSearch = new L.Control.Search({layer: browardPointsLayer, text:'Search descriptions...', initial: false, autoResize: false, position:'topleft', collapsed: false});
@@ -243,6 +247,11 @@
       markerColor: 'blue',
       prefix: 'fa'
     });
+    var orangeMarker = L.AwesomeMarkers.icon({
+      icon: 'truck',
+      markerColor: 'orange',
+      prefix: 'fa'
+    });
     var geojsonHighlight;
     var geojsonHighlightBroward;
 
@@ -288,6 +297,14 @@
       }
       this._div.innerHTML = display;
     };
+    info.updateMOT = function (props) {
+      var desc = props.applicant_;
+      var details = '<br>Desc: '+props.project_mo+
+      '<br>Location: '+props.project_na;
+      var display = '<h4>Fort Lauderdale Visualization</h4>' +
+      '<br><b>' + desc + '</b>' + '<br>' + details;
+      this._div.innerHTML = display;
+    };
 
     info.addTo(map);
     control.addTo(map);
@@ -296,6 +313,8 @@
     map.addLayer(browardPointsLayer);
     map.addLayer(cipRoadsLayer);
     map.addLayer(browardRoadsLayer);
+    map.addLayer(ftlMotLayer);
+    map.addLayer(ftlBoundaryLayer);
     var showCipPoints = true;
     var showBrowardPoints = true;
     var showCipRoads = true;
@@ -407,6 +426,28 @@
       }
       browardMarkerList[feature.properties.fy52].push(marker);
       marker.addTo(browardPointsLayer);
+      return marker;
+    });
+
+    addGeoJsonCustom("mot_for_tam_080715.geojson",
+    function (feature, layer) {
+      layer.bindPopup(
+        '<strong>'+feature.properties.applicant_+'</strong>'+
+        '<br><br>Desc: '+feature.properties.project_mo+
+        '<br>Location: '+feature.properties.project_na
+      );
+    },
+    function (feature, latlng) {
+      var marker = L.marker(latlng, {icon: orangeMarker});
+      marker.addTo(ftlMotLayer);
+      marker.on({
+        mouseover: function (e) {
+          info.updateMOT(e.target.feature.properties);
+        },
+        mouseout: function (e) {
+          info.update()
+        }
+      });
       return marker;
     });
 
