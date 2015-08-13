@@ -118,8 +118,8 @@
 
     <div id="sliderGroup">
       <div class="noUi-base" id="slider"></div>
-      <span id="event-start">December 2012</span> to
-      <span id="event-stop">December 2019</span>
+      <span id="event-start">Slide to begin Start Date</span> to
+      <span id="event-stop">End Date</span>
     </div>
 
     <script>
@@ -147,6 +147,7 @@
     var ftlMotLayer = new L.LayerGroup();
     var ftlBoundaryLayer = new L.LayerGroup();
     var browardMarkerList = [];
+    var filterMarkerList = [];
     map.addLayer(googleTraffic);
 
     var control = L.control.layers({'Google Map':googleRoadmap, 'Google Satellite':googleHybrid, 'Google Traffic':googleTraffic, 'OpenStreetMap':osmLayer},{
@@ -166,7 +167,7 @@
     noUiSlider.create(slider, {
     	start: [timestamp('2013'), timestamp('2020')],
     	connect: true,
-      step: 365 * 24 * 60 * 60 * 1000, // 1 year
+      step: 24 * 60 * 60 * 1000, // 1 day
     	range: {
     		'min': timestamp('2013'),
     		'max': timestamp('2020')
@@ -179,14 +180,18 @@
       document.getElementById('event-stop').innerHTML = formatDate(new Date(Math.round(times[1])));
       handleSlideYear(times[0], times[1]);
     });
+    var sliderStart = (new Date()).getTime(); // Set to current day
+    slider.noUiSlider.set([sliderStart,sliderStart+(365 * 24 * 60 * 60 * 1000)]);
 
     function timestamp(str){
       return new Date(str).getTime();
     }
 
     function formatDate ( date ) {
-      return months[date.getMonth()] + " " +
-          date.getFullYear();
+      return weekdays[date.getDay()] + ", " +
+        date.getDate() + nth(date.getDate()) + " " +
+        months[date.getMonth()] + " " +
+        date.getFullYear();
     }
 
     var
@@ -215,18 +220,15 @@
       }
 
     function handleSlideYear(time0, time1) {
-      for (var yearIndex in browardMarkerList) {
-        var yearMarkers = browardMarkerList[yearIndex];
-        for (var markerIndex in yearMarkers) {
-          var foundMarker = yearMarkers[markerIndex];
-          var startTime = foundMarker.options.startTime;
-          var stopTime = foundMarker.options.stopTime;
-          var show = (startTime >= time0 && stopTime <=time1);
-          if (show) {
-            map.addLayer(foundMarker);
-          } else {
-            map.removeLayer(foundMarker);
-          }
+      for (var markerIndex in filterMarkerList) {
+        var foundMarker = filterMarkerList[markerIndex];
+        var startTime = foundMarker.options.startTime;
+        var stopTime = foundMarker.options.stopTime;
+        var show = ((time0 <= startTime && startTime <= time1) || (time0 <= stopTime && stopTime <= time1));
+        if (show) {
+          map.addLayer(foundMarker);
+        } else {
+          map.removeLayer(foundMarker);
         }
       }
     }
@@ -300,7 +302,10 @@
     info.updateMOT = function (props) {
       var desc = props.applicant_;
       var details = '<br>Desc: '+props.project_mo+
-      '<br>Location: '+props.project_na;
+      '<br>Location: '+props.project_na+
+      '<br>Date Approved: '+props.date_appro+
+      '<br>Date Begin: '+props.date_begin+
+      '<br>Date End: '+props.date_end;
       var display = '<h4>Fort Lauderdale Visualization</h4>' +
       '<br><b>' + desc + '</b>' + '<br>' + details;
       this._div.innerHTML = display;
@@ -425,6 +430,7 @@
         browardMarkerList[feature.properties.fy52] = [];
       }
       browardMarkerList[feature.properties.fy52].push(marker);
+      filterMarkerList.push(marker);
       marker.addTo(browardPointsLayer);
       return marker;
     });
@@ -434,11 +440,17 @@
       layer.bindPopup(
         '<strong>'+feature.properties.applicant_+'</strong>'+
         '<br><br>Desc: '+feature.properties.project_mo+
-        '<br>Location: '+feature.properties.project_na
+        '<br>Location: '+feature.properties.project_na+
+        '<br>Date Approved: '+feature.properties.date_appro+
+        '<br>Date Begin: '+feature.properties.date_begin+
+        '<br>Date End: '+feature.properties.date_end
       );
     },
     function (feature, latlng) {
-      var marker = L.marker(latlng, {icon: orangeMarker});
+      var marker = L.marker(latlng, {icon: orangeMarker,
+        title: feature.properties.loc_desc,
+        startTime: new Date(feature.properties.date_begin),
+        stopTime: new Date(feature.properties.date_end)});
       marker.addTo(ftlMotLayer);
       marker.on({
         mouseover: function (e) {
@@ -448,6 +460,7 @@
           info.update()
         }
       });
+      filterMarkerList.push(marker);
       return marker;
     });
 
