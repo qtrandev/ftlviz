@@ -9,14 +9,14 @@ http://codeforftl.org
 http://www.fortlauderdale.gov  
 
 ## Why
-To allow travelers and residents of the Fort Lauderdale area to avoid traffic backups and save travel time. Also for the city of Fort Lauderdale to visualize ongoing construction and for them to see if they can move projects forward or backward allowing streets to have construction work done on them just one time. Also for adjusting closures and traffic signal timings and patterns based on construction and public events.
+To allow travelers and residents of the Fort Lauderdale area to avoid traffic backups and save travel time. Also for the City of Fort Lauderdale to visualize ongoing construction and for them to see if they can move projects forward or backward allowing streets to have construction work done on them just one time. Also for adjusting closures and traffic signal timings and patterns based on construction and public events.
 
 ## Screenshots
 None at the present
 
 ## How
 
-#### References
+### References
 
 [Leaflet - a Javascript library for interactive maps](http://leafletjs.com)  
 [Leaflet.awesome-markers with Font Awesome](https://github.com/lvoogdt/Leaflet.awesome-markers)  
@@ -28,7 +28,7 @@ Copy all the files in this repository to a web server.
 Access index.html on the web server.  
 All code is HTML and Javascript. No other dependencies needed.
 
-#### Status
+### Status
 Alpha - Features are being added
 
 ## To contribute
