@@ -165,13 +165,13 @@
     var slider = document.getElementById('slider');
 
     noUiSlider.create(slider, {
-    	start: [timestamp('2013'), timestamp('2020')],
-    	connect: true,
+      start: [timestamp('2013'), timestamp('2020')],
+      connect: true,
       step: 24 * 60 * 60 * 1000, // 1 day
-    	range: {
-    		'min': timestamp('2013'),
-    		'max': timestamp('2020')
-    	}
+      range: {
+        'min': timestamp('2013'),
+        'max': timestamp('2020')
+      }
     });
 
     slider.noUiSlider.on('change', function(){
@@ -194,30 +194,29 @@
         date.getFullYear();
     }
 
-    var
-    	weekdays = [
-    		"Sunday", "Monday", "Tuesday",
-    		"Wednesday", "Thursday", "Friday",
-    		"Saturday"
-    	],
-    	months = [
-    		"January", "February", "March",
-    		"April", "May", "June", "July",
-    		"August", "September", "October",
-    		"November", "December"
-    	];
+    var  weekdays = [
+      "Sunday", "Monday", "Tuesday",
+      "Wednesday", "Thursday", "Friday",
+      "Saturday"
+    ];
+    var  months = [
+      "January", "February", "March",
+      "April", "May", "June", "July",
+      "August", "September", "October",
+      "November", "December"
+    ];
 
-      // Append a suffix to dates.
-      // Example: 23 => 23rd, 1 => 1st.
-      function nth (d) {
-        if(d>3 && d<21) return 'th';
-        switch (d % 10) {
-              case 1:  return "st";
-              case 2:  return "nd";
-              case 3:  return "rd";
-              default: return "th";
-          }
+    // Append a suffix to dates.
+    // Example: 23 => 23rd, 1 => 1st.
+    function nth (d) {
+      if(d>3 && d<21) return 'th';
+      switch (d % 10) {
+        case 1:  return "st";
+        case 2:  return "nd";
+        case 3:  return "rd";
+        default: return "th";
       }
+    }
 
     function handleSlideYear(time0, time1) {
       for (var markerIndex in filterMarkerList) {
