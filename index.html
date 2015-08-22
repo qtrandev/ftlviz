@@ -426,7 +426,7 @@
       var marker = L.marker(latlng, {icon: blueMarker,
         title: feature.properties.loc_desc,
         startTime: new Date(feature.properties.estimatedw).getTime(),
-        stopTime: new Date(feature.properties.estimate_1).getTime()})
+        stopTime: new Date(feature.properties.estimate_1).getTime()});
       marker.on({
         mouseover: function (e) {
           info.update(e.target.feature.properties)
@@ -529,7 +529,10 @@
         '<br>Ex_Airport: '+feature.properties.ex_airport);
     },
     function (feature, latlng) {
-      var marker = L.marker(latlng, {icon: greenMarker})
+      var marker = L.marker(latlng, {icon: greenMarker,
+        title: feature.properties.descriptio,
+        startTime: new Date(feature.properties.fy).getTime(),
+        stopTime: new Date(feature.properties.fy).getTime() + 365*24*60*60*1000});
       marker.on({
         mouseover: function (e) {
           info.update(e.target.feature.properties)
@@ -538,6 +541,7 @@
           info.update()
         }
       });
+      filterMarkerList.push(marker);
       marker.addTo(cipPointsLayer);
       return marker;
     });
