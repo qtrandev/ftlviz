@@ -147,7 +147,6 @@
     var browardRoadsLayer = new L.LayerGroup();
     var ftlMotLayer = new L.LayerGroup();
     var ftlBoundaryLayer = new L.LayerGroup();
-    var browardMarkerList = [];
     var filterMarkerList = [];
     map.addLayer(googleTraffic);
 
@@ -431,10 +430,6 @@
           info.update()
         }
       });
-      if (browardMarkerList[feature.properties.fy52] === undefined) {
-        browardMarkerList[feature.properties.fy52] = [];
-      }
-      browardMarkerList[feature.properties.fy52].push(marker);
       filterMarkerList.push(marker);
       marker.addTo(browardPointsLayer);
       return marker;
