@@ -113,6 +113,8 @@
       <a href='#' data-filter='2018'>2018</a>
       <a href='#' data-filter='2019'>2019</a>
       <a href='#' data-filter='today'>Today</a>
+      <a href='#' data-filter='weekly'>Weekly</a>
+      <a href='#' data-filter='monthly'>Monthly</a>
     </nav>
 
     <div id="sliderGroup">
@@ -145,7 +147,6 @@
     var browardRoadsLayer = new L.LayerGroup();
     var ftlMotLayer = new L.LayerGroup();
     var ftlBoundaryLayer = new L.LayerGroup();
-    var browardMarkerList = [];
     var filterMarkerList = [];
     map.addLayer(googleTraffic);
 
@@ -175,12 +176,12 @@
 
     slider.noUiSlider.on('change', function(){
       times = slider.noUiSlider.get();
-      updateSlider(times[0],times[1]);
+      updateSlider(Math.round(times[0]),Math.round(times[1]));
     });
 
     function updateSlider(time0, time1) {
-      document.getElementById('event-start').innerHTML = formatDate(new Date(Math.round(time0)));
-      document.getElementById('event-stop').innerHTML = formatDate(new Date(Math.round(time1)));
+      document.getElementById('event-start').innerHTML = formatDate(new Date(time0));
+      document.getElementById('event-stop').innerHTML = formatDate(new Date(time1));
       handleSlideYear(time0, time1);
     }
     var sliderStart = (new Date()).getTime(); // Set to current day
@@ -227,7 +228,12 @@
         var foundMarker = filterMarkerList[markerIndex];
         var startTime = foundMarker.options.startTime;
         var stopTime = foundMarker.options.stopTime;
-        var show = ((time0 <= startTime && startTime <= time1) || (time0 <= stopTime && stopTime <= time1));
+        var show = true;
+        if (time1 < startTime) {
+          show = false;
+        } else if (time0 > stopTime) {
+          show = false;
+        }
         if (show) {
           map.addLayer(foundMarker);
         } else {
@@ -419,8 +425,8 @@
     function (feature, latlng) {
       var marker = L.marker(latlng, {icon: blueMarker,
         title: feature.properties.loc_desc,
-        startTime: new Date(feature.properties.estimatedw),
-        stopTime: new Date(feature.properties.estimate_1)})
+        startTime: new Date(feature.properties.estimatedw).getTime(),
+        stopTime: new Date(feature.properties.estimate_1).getTime()});
       marker.on({
         mouseover: function (e) {
           info.update(e.target.feature.properties)
@@ -429,10 +435,6 @@
           info.update()
         }
       });
-      if (browardMarkerList[feature.properties.fy52] === undefined) {
-        browardMarkerList[feature.properties.fy52] = [];
-      }
-      browardMarkerList[feature.properties.fy52].push(marker);
       filterMarkerList.push(marker);
       marker.addTo(browardPointsLayer);
       return marker;
@@ -452,8 +454,8 @@
     function (feature, latlng) {
       var marker = L.marker(latlng, {icon: orangeMarker,
         title: feature.properties.loc_desc,
-        startTime: new Date(feature.properties.date_begin),
-        stopTime: new Date(feature.properties.date_end)});
+        startTime: new Date(feature.properties.date_begin).getTime(),
+        stopTime: new Date(feature.properties.date_end).getTime()});
       marker.addTo(ftlMotLayer);
       marker.on({
         mouseover: function (e) {
@@ -527,7 +529,10 @@
         '<br>Ex_Airport: '+feature.properties.ex_airport);
     },
     function (feature, latlng) {
-      var marker = L.marker(latlng, {icon: greenMarker})
+      var marker = L.marker(latlng, {icon: greenMarker,
+        title: feature.properties.descriptio,
+        startTime: new Date(feature.properties.fy).getTime(),
+        stopTime: new Date(feature.properties.fy).getTime() + 365*24*60*60*1000});
       marker.on({
         mouseover: function (e) {
           info.update(e.target.feature.properties)
@@ -536,6 +541,7 @@
           info.update()
         }
       });
+      filterMarkerList.push(marker);
       marker.addTo(cipPointsLayer);
       return marker;
     });
@@ -667,6 +673,14 @@
       } else if (filter === 'today') {
         time0 = sliderStart; // Value set to today
         time1 = sliderStartOneYear;
+      } else if (filter === 'weekly') {
+        var weekvalue = (7*24*60*60*1000); // 7 days
+        time0 = Math.round(slider.noUiSlider.get()[0]) + weekvalue;
+        time1 = time0 + weekvalue;
+      } else if (filter === 'monthly') {
+        var monthvalue = (30*24*60*60*1000); // 30 days
+        time0 = Math.round(slider.noUiSlider.get()[0]) + monthvalue;
+        time1 = time0 + monthvalue;
       } else {
         time0 = timestamp(filter.toString());
         time1 = timestamp(filter.toString())+(365*24*60*60*1000); //Add 365 days
