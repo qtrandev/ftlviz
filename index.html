@@ -113,6 +113,8 @@
       <a href='#' data-filter='2018'>2018</a>
       <a href='#' data-filter='2019'>2019</a>
       <a href='#' data-filter='today'>Today</a>
+      <a href='#' data-filter='weekly'>Weekly</a>
+      <a href='#' data-filter='monthly'>Monthly</a>
     </nav>
 
     <div id="sliderGroup">
@@ -667,6 +669,14 @@
       } else if (filter === 'today') {
         time0 = sliderStart; // Value set to today
         time1 = sliderStartOneYear;
+      } else if (filter === 'weekly') {
+        var weekvalue = (7*24*60*60*1000); // 7 days
+        time0 = Math.round(slider.noUiSlider.get()[0]) + weekvalue;
+        time1 = time0 + weekvalue;
+      } else if (filter === 'monthly') {
+        var monthvalue = (30*24*60*60*1000); // 30 days
+        time0 = Math.round(slider.noUiSlider.get()[0]) + monthvalue;
+        time1 = time0 + monthvalue;
       } else {
         time0 = timestamp(filter.toString());
         time1 = timestamp(filter.toString())+(365*24*60*60*1000); //Add 365 days
