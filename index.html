@@ -105,21 +105,20 @@
     <div id="map"></div>
 
     <nav class='menu-ui'>
-      <a href='#' class='active' data-filter='all'>Show All (FY52)</a>
-      <a href='#' data-filter='2013'>2013</a>
+      <a href='#' class='active' data-filter='all'>Show All Range</a>
       <a href='#' data-filter='2014'>2014</a>
       <a href='#' data-filter='2015'>2015</a>
       <a href='#' data-filter='2016'>2016</a>
       <a href='#' data-filter='2017'>2017</a>
       <a href='#' data-filter='2018'>2018</a>
       <a href='#' data-filter='2019'>2019</a>
-      <a href='#' data-filter='0'>Other</a>
+      <a href='#' data-filter='today'>Today</a>
     </nav>
 
     <div id="sliderGroup">
       <div class="noUi-base" id="slider"></div>
-      <span id="event-start">Slide to begin Start Date</span> to
-      <span id="event-stop">End Date</span>
+      <strong><span id="event-start">Slide to begin Start Date</span> to
+      <span id="event-stop">End Date</span></strong>
     </div>
 
     <script>
@@ -165,23 +164,28 @@
     var slider = document.getElementById('slider');
 
     noUiSlider.create(slider, {
-    	start: [timestamp('2013'), timestamp('2020')],
-    	connect: true,
+      start: [timestamp('2013'), timestamp('2020')],
+      connect: true,
       step: 24 * 60 * 60 * 1000, // 1 day
-    	range: {
-    		'min': timestamp('2013'),
-    		'max': timestamp('2020')
-    	}
+      range: {
+        'min': timestamp('2013'),
+        'max': timestamp('2020')
+      }
     });
 
     slider.noUiSlider.on('change', function(){
       times = slider.noUiSlider.get();
-      document.getElementById('event-start').innerHTML = formatDate(new Date(Math.round(times[0])));
-      document.getElementById('event-stop').innerHTML = formatDate(new Date(Math.round(times[1])));
-      handleSlideYear(times[0], times[1]);
+      updateSlider(times[0],times[1]);
     });
+
+    function updateSlider(time0, time1) {
+      document.getElementById('event-start').innerHTML = formatDate(new Date(Math.round(time0)));
+      document.getElementById('event-stop').innerHTML = formatDate(new Date(Math.round(time1)));
+      handleSlideYear(time0, time1);
+    }
     var sliderStart = (new Date()).getTime(); // Set to current day
-    slider.noUiSlider.set([sliderStart,sliderStart+(365 * 24 * 60 * 60 * 1000)]);
+    var sliderStartOneYear = sliderStart+(365 * 24 * 60 * 60 * 1000);
+    slider.noUiSlider.set([sliderStart,sliderStartOneYear]);
 
     function timestamp(str){
       return new Date(str).getTime();
@@ -194,30 +198,29 @@
         date.getFullYear();
     }
 
-    var
-    	weekdays = [
-    		"Sunday", "Monday", "Tuesday",
-    		"Wednesday", "Thursday", "Friday",
-    		"Saturday"
-    	],
-    	months = [
-    		"January", "February", "March",
-    		"April", "May", "June", "July",
-    		"August", "September", "October",
-    		"November", "December"
-    	];
+    var  weekdays = [
+      "Sunday", "Monday", "Tuesday",
+      "Wednesday", "Thursday", "Friday",
+      "Saturday"
+    ];
+    var  months = [
+      "January", "February", "March",
+      "April", "May", "June", "July",
+      "August", "September", "October",
+      "November", "December"
+    ];
 
-      // Append a suffix to dates.
-      // Example: 23 => 23rd, 1 => 1st.
-      function nth (d) {
-        if(d>3 && d<21) return 'th';
-        switch (d % 10) {
-              case 1:  return "st";
-              case 2:  return "nd";
-              case 3:  return "rd";
-              default: return "th";
-          }
+    // Append a suffix to dates.
+    // Example: 23 => 23rd, 1 => 1st.
+    function nth (d) {
+      if(d>3 && d<21) return 'th';
+      switch (d % 10) {
+        case 1:  return "st";
+        case 2:  return "nd";
+        case 3:  return "rd";
+        default: return "th";
       }
+    }
 
     function handleSlideYear(time0, time1) {
       for (var markerIndex in filterMarkerList) {
@@ -656,25 +659,21 @@
       // For each filter link, get the 'data-filter' attribute value.
       var filter = $(this).data('filter');
       $(this).addClass('active').siblings().removeClass('active');
-      // If the filter is All, then all markers are shown, else they are hidden
-      var notShowAll = (filter !== 'all');
-      for (var yearIndex in browardMarkerList) {
-        var yearMarkers = browardMarkerList[yearIndex];
-        for (var markerIndex in yearMarkers) {
-          if (notShowAll) {
-            map.removeLayer(yearMarkers[markerIndex]);
-          } else {
-            map.addLayer(yearMarkers[markerIndex]);
-          }
-        }
+      var time0;
+      var time1;
+      if (filter === 'all') {
+        time0 = timestamp('2013');
+        time1 = timestamp('2020');
+      } else if (filter === 'today') {
+        time0 = sliderStart; // Value set to today
+        time1 = sliderStartOneYear;
+      } else {
+        time0 = timestamp(filter.toString());
+        time1 = timestamp(filter.toString())+(365*24*60*60*1000); //Add 365 days
       }
-      // Enable specific markers for the year if filter is not All
-      if (notShowAll) {
-        var yearMarkers = browardMarkerList[filter];
-        for (var markerIndex in yearMarkers) {
-          map.addLayer(yearMarkers[markerIndex]);
-        }
-      }
+      slider.noUiSlider.set([time0,time1]);
+      updateSlider(time0,time1);
+
       return false;
     });
 
