@@ -176,12 +176,12 @@
 
     slider.noUiSlider.on('change', function(){
       times = slider.noUiSlider.get();
-      updateSlider(times[0],times[1]);
+      updateSlider(Math.round(times[0]),Math.round(times[1]));
     });
 
     function updateSlider(time0, time1) {
-      document.getElementById('event-start').innerHTML = formatDate(new Date(Math.round(time0)));
-      document.getElementById('event-stop').innerHTML = formatDate(new Date(Math.round(time1)));
+      document.getElementById('event-start').innerHTML = formatDate(new Date(time0));
+      document.getElementById('event-stop').innerHTML = formatDate(new Date(time1));
       handleSlideYear(time0, time1);
     }
     var sliderStart = (new Date()).getTime(); // Set to current day
@@ -228,7 +228,12 @@
         var foundMarker = filterMarkerList[markerIndex];
         var startTime = foundMarker.options.startTime;
         var stopTime = foundMarker.options.stopTime;
-        var show = ((time0 <= startTime && startTime <= time1) || (time0 <= stopTime && stopTime <= time1));
+        var show = true;
+        if (time1 < startTime) {
+          show = false;
+        } else if (time0 > stopTime) {
+          show = false;
+        }
         if (show) {
           map.addLayer(foundMarker);
         } else {
@@ -420,8 +425,8 @@
     function (feature, latlng) {
       var marker = L.marker(latlng, {icon: blueMarker,
         title: feature.properties.loc_desc,
-        startTime: new Date(feature.properties.estimatedw),
-        stopTime: new Date(feature.properties.estimate_1)})
+        startTime: new Date(feature.properties.estimatedw).getTime(),
+        stopTime: new Date(feature.properties.estimate_1).getTime()})
       marker.on({
         mouseover: function (e) {
           info.update(e.target.feature.properties)
@@ -449,8 +454,8 @@
     function (feature, latlng) {
       var marker = L.marker(latlng, {icon: orangeMarker,
         title: feature.properties.loc_desc,
-        startTime: new Date(feature.properties.date_begin),
-        stopTime: new Date(feature.properties.date_end)});
+        startTime: new Date(feature.properties.date_begin).getTime(),
+        stopTime: new Date(feature.properties.date_end).getTime()});
       marker.addTo(ftlMotLayer);
       marker.on({
         mouseover: function (e) {
