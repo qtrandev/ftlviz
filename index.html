@@ -469,6 +469,11 @@
       return marker;
     });
 
+    $.getJSON("ftl_boundary_080715.geojson", function(data) {
+      var geojson = L.geoJson(data);
+      geojson.addTo(ftlBoundaryLayer);
+    });
+
     addGeoJsonStyleHighlightBroward("bwdco_ftl_const.geojson", function (feature, layer) {
       layer.addTo(browardRoadsLayer);
       layer.on({
@@ -672,7 +677,7 @@
         time1 = timestamp('2020');
       } else if (filter === 'today') {
         time0 = sliderStart; // Value set to today
-        time1 = sliderStartOneYear;
+        time1 = sliderStart + (24*60*60*1000);
       } else if (filter === 'weekly') {
         var weekvalue = (7*24*60*60*1000); // 7 days
         time0 = Math.round(slider.noUiSlider.get()[0]) + weekvalue;
