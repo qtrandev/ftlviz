@@ -469,6 +469,11 @@
       return marker;
     });
 
+    $.getJSON("ftl_boundary_080715.geojson", function(data) {
+      var geojson = L.geoJson(data);
+      geojson.addTo(ftlBoundaryLayer);
+    });
+
     addGeoJsonStyleHighlightBroward("bwdco_ftl_const.geojson", function (feature, layer) {
       layer.addTo(browardRoadsLayer);
       layer.on({
