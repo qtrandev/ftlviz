@@ -148,6 +148,8 @@
     var ftlMotLayer = new L.LayerGroup();
     var ftlBoundaryLayer = new L.LayerGroup();
     var filterMarkerList = [];
+    var filterLayersListBroward = [];
+    var filterLayersListCIP = [];
     map.addLayer(googleTraffic);
 
     var control = L.control.layers({'Google Map':googleRoadmap, 'Google Satellite':googleHybrid, 'Google Traffic':googleTraffic, 'OpenStreetMap':osmLayer},{
@@ -183,6 +185,7 @@
       document.getElementById('event-start').innerHTML = formatDate(new Date(time0));
       document.getElementById('event-stop').innerHTML = formatDate(new Date(time1));
       handleSlideYear(time0, time1);
+      handleLayerLines(time0, time1);
     }
     var sliderStart = (new Date()).getTime(); // Set to current day
     var sliderStartOneYear = sliderStart+(365 * 24 * 60 * 60 * 1000);
@@ -238,6 +241,43 @@
           map.addLayer(foundMarker);
         } else {
           map.removeLayer(foundMarker);
+        }
+      }
+    }
+
+    function handleLayerLines(time0, time1) {
+      // Find matching Broward layers
+      for (var layerIndex in filterLayersListBroward) {
+        var foundLayer = filterLayersListBroward[layerIndex];
+        var startTime = new Date(foundLayer.feature.properties.estimatedw).getTime();
+        var stopTime = new Date(foundLayer.feature.properties.estimate_1).getTime();
+        var show = true;
+        if (time1 < startTime) {
+          show = false;
+        } else if (time0 > stopTime) {
+          show = false;
+        }
+        if (show) {
+          map.addLayer(foundLayer);
+        } else {
+          map.removeLayer(foundLayer);
+        }
+      }
+      // Find matching Fort Lauderdale CIP layers
+      for (var layerIndex in filterLayersListCIP) {
+        var foundLayer = filterLayersListCIP[layerIndex];
+        var startTime = new Date(foundLayer.feature.properties.fy).getTime();
+        var stopTime = new Date(foundLayer.feature.properties.fy).getTime() + 365*24*60*60*1000;
+        var show = true;
+        if (time1 < startTime) {
+          show = false;
+        } else if (time0 > stopTime) {
+          show = false;
+        }
+        if (show) {
+          map.addLayer(foundLayer);
+        } else {
+          map.removeLayer(foundLayer);
         }
       }
     }
@@ -476,6 +516,7 @@
 
     addGeoJsonStyleHighlightBroward("bwdco_ftl_const.geojson", function (feature, layer) {
       layer.addTo(browardRoadsLayer);
+      filterLayersListBroward.push(layer);
       layer.on({
         mouseover: highlightFeatureBroward,
         mouseout: resetHighlightBroward
@@ -554,6 +595,7 @@
     addGeoJsonStyleHighlightCIP("cip_projects_line.geojson",
     function (feature, layer) {
       layer.addTo(cipRoadsLayer);
+      filterLayersListCIP.push(layer);
       layer.on({
         mouseover: highlightFeature,
         mouseout: resetHighlight
