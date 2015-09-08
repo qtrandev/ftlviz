@@ -374,6 +374,8 @@
     var showBrowardPoints = true;
     var showCipRoads = true;
     var showBrowardRoads = true;
+    var showMotPoints = true;
+    var showFtlBoundary = true;
 
     function addLocations() {
       var i = 0;
@@ -672,10 +674,12 @@
       control.update = function () {
         this._div.innerHTML = '<h4>Filters</h4>'+
         '<br><button type="button" class="btn btn-primary"  onclick="showAll()">All</button>'+
-        '<br><br><button type="button" class="btn btn-primary"  onclick="toggleCipPoints()">CIP Points</button>'+
-        '<br><br><button type="button" class="btn btn-primary"  onclick="toggleCipRoads()">CIP Roads</button>'+
-        '<br><br><button type="button" class="btn btn-primary"  onclick="toggleBrowardPoints()">Broward Points</button>'+
-        '<br><br><button type="button" class="btn btn-primary"  onclick="toggleBrowardRoads()">Broward Roads</button>';
+        '<br><br><button type="button" class="btn btn-primary"  onclick="toggleCipPoints()">CIP Points</button> '+
+        '<button type="button" class="btn btn-primary"  onclick="toggleCipRoads()">CIP Roads</button>'+
+        '<br><br><button type="button" class="btn btn-primary"  onclick="toggleBrowardPoints()">Broward Points</button> '+
+        '<button type="button" class="btn btn-primary"  onclick="toggleBrowardRoads()">Broward Roads</button>' +
+        '<br><br><button type="button" class="btn btn-primary"  onclick="toggleMotPoints()">MOT Points</button> '+
+        '<button type="button" class="btn btn-primary"  onclick="toggleFtlBoundary()">FTL Boundary</button>';
       };
 
       control.addTo(map);
@@ -690,6 +694,7 @@
       showBrowardPoints = true;
       showCipRoads = true;
       showBrowardRoads = true;
+      showMotPoints = true;
     }
 
     function toggleCipPoints() {
@@ -710,6 +715,16 @@
     function toggleBrowardRoads() {
       showBrowardRoads? map.removeLayer(browardRoadsLayer) : map.addLayer(browardRoadsLayer);
       showBrowardRoads = !showBrowardRoads;
+    }
+
+    function toggleMotPoints() {
+      showMotPoints? map.removeLayer(ftlMotLayer) : map.addLayer(ftlMotLayer);
+      showMotPoints = !showMotPoints;
+    }
+
+    function toggleFtlBoundary() {
+      showFtlBoundary? map.removeLayer(ftlBoundaryLayer) : map.addLayer(ftlBoundaryLayer);
+      showFtlBoundary = !showFtlBoundary;
     }
 
     $('.menu-ui a').on('click', function() {
