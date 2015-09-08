@@ -147,6 +147,7 @@
     var browardRoadsLayer = new L.LayerGroup();
     var ftlMotLayer = new L.LayerGroup();
     var ftlBoundaryLayer = new L.LayerGroup();
+    var searchLayer = new L.LayerGroup();
     var filterMarkerList = [];
     var filterLayersListBroward = [];
     var filterLayersListCIP = [];
@@ -161,7 +162,7 @@
       'FTL Boundary': ftlBoundaryLayer
     });
 
-    var controlSearch = new L.Control.Search({layer: browardPointsLayer, text:'Search descriptions...', initial: false, autoResize: false, position:'topleft', collapsed: false});
+    var controlSearch = new L.Control.Search({layer: searchLayer, text:'Search descriptions...', initial: false, autoResize: false, position:'topleft', collapsed: false});
     map.addControl( controlSearch );
 
     var slider = document.getElementById('slider');
@@ -373,6 +374,8 @@
     var showBrowardPoints = true;
     var showCipRoads = true;
     var showBrowardRoads = true;
+    var showMotPoints = true;
+    var showFtlBoundary = true;
 
     function addLocations() {
       var i = 0;
@@ -464,7 +467,7 @@
     },
     function (feature, latlng) {
       var marker = L.marker(latlng, {icon: blueMarker,
-        title: feature.properties.loc_desc,
+        title: 'Broward: '+feature.properties.loc_desc,
         startTime: new Date(feature.properties.estimatedw).getTime(),
         stopTime: new Date(feature.properties.estimate_1).getTime()});
       marker.on({
@@ -477,6 +480,7 @@
       });
       filterMarkerList.push(marker);
       marker.addTo(browardPointsLayer);
+      marker.addTo(searchLayer);
       return marker;
     });
 
@@ -493,10 +497,11 @@
     },
     function (feature, latlng) {
       var marker = L.marker(latlng, {icon: orangeMarker,
-        title: feature.properties.loc_desc,
+        title: 'MOT: '+feature.properties.project_mo,
         startTime: new Date(feature.properties.date_begin).getTime(),
         stopTime: new Date(feature.properties.date_end).getTime()});
       marker.addTo(ftlMotLayer);
+      marker.addTo(searchLayer);
       marker.on({
         mouseover: function (e) {
           info.updateMOT(e.target.feature.properties);
@@ -576,7 +581,7 @@
     },
     function (feature, latlng) {
       var marker = L.marker(latlng, {icon: greenMarker,
-        title: feature.properties.descriptio,
+        title: 'CIP: '+feature.properties.descriptio,
         startTime: new Date(feature.properties.fy).getTime(),
         stopTime: new Date(feature.properties.fy).getTime() + 365*24*60*60*1000});
       marker.on({
@@ -589,6 +594,7 @@
       });
       filterMarkerList.push(marker);
       marker.addTo(cipPointsLayer);
+      marker.addTo(searchLayer);
       return marker;
     });
 
@@ -668,10 +674,12 @@
       control.update = function () {
         this._div.innerHTML = '<h4>Filters</h4>'+
         '<br><button type="button" class="btn btn-primary"  onclick="showAll()">All</button>'+
-        '<br><br><button type="button" class="btn btn-primary"  onclick="toggleCipPoints()">CIP Points</button>'+
-        '<br><br><button type="button" class="btn btn-primary"  onclick="toggleCipRoads()">CIP Roads</button>'+
-        '<br><br><button type="button" class="btn btn-primary"  onclick="toggleBrowardPoints()">Broward Points</button>'+
-        '<br><br><button type="button" class="btn btn-primary"  onclick="toggleBrowardRoads()">Broward Roads</button>';
+        '<br><br><button type="button" class="btn btn-primary"  onclick="toggleCipPoints()">CIP Points</button> '+
+        '<button type="button" class="btn btn-primary"  onclick="toggleCipRoads()">CIP Roads</button>'+
+        '<br><br><button type="button" class="btn btn-primary"  onclick="toggleBrowardPoints()">Broward Points</button> '+
+        '<button type="button" class="btn btn-primary"  onclick="toggleBrowardRoads()">Broward Roads</button>' +
+        '<br><br><button type="button" class="btn btn-primary"  onclick="toggleMotPoints()">MOT Points</button> '+
+        '<button type="button" class="btn btn-primary"  onclick="toggleFtlBoundary()">FTL Boundary</button>';
       };
 
       control.addTo(map);
@@ -682,10 +690,12 @@
       map.addLayer(browardPointsLayer);
       map.addLayer(cipRoadsLayer);
       map.addLayer(browardRoadsLayer);
+      map.addLayer(ftlMotLayer);
       showCipPoints = true;
       showBrowardPoints = true;
       showCipRoads = true;
       showBrowardRoads = true;
+      showMotPoints = true;
     }
 
     function toggleCipPoints() {
@@ -706,6 +716,16 @@
     function toggleBrowardRoads() {
       showBrowardRoads? map.removeLayer(browardRoadsLayer) : map.addLayer(browardRoadsLayer);
       showBrowardRoads = !showBrowardRoads;
+    }
+
+    function toggleMotPoints() {
+      showMotPoints? map.removeLayer(ftlMotLayer) : map.addLayer(ftlMotLayer);
+      showMotPoints = !showMotPoints;
+    }
+
+    function toggleFtlBoundary() {
+      showFtlBoundary? map.removeLayer(ftlBoundaryLayer) : map.addLayer(ftlBoundaryLayer);
+      showFtlBoundary = !showFtlBoundary;
     }
 
     $('.menu-ui a').on('click', function() {
