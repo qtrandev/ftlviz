@@ -151,7 +151,7 @@
     var filterMarkerList = [];
     var filterLayersListBroward = [];
     var filterLayersListCIP = [];
-    map.addLayer(googleTraffic);
+    map.addLayer(osmLayer);
 
     var control = L.control.layers({'OpenStreetMap':osmLayer, 'Google Map':googleRoadmap, 'Google Satellite':googleHybrid, 'Google Traffic':googleTraffic},{
       'CIP (Capital Improvement Plan) Points': cipPointsLayer,
