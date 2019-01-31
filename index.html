@@ -153,7 +153,7 @@
     var filterLayersListCIP = [];
     map.addLayer(googleTraffic);
 
-    var control = L.control.layers({'Google Map':googleRoadmap, 'Google Satellite':googleHybrid, 'Google Traffic':googleTraffic, 'OpenStreetMap':osmLayer},{
+    var control = L.control.layers({'OpenStreetMap':osmLayer, 'Google Map':googleRoadmap, 'Google Satellite':googleHybrid, 'Google Traffic':googleTraffic},{
       'CIP (Capital Improvement Plan) Points': cipPointsLayer,
       'CIP (Capital Improvement Plan) Roads': cipRoadsLayer,
       'Broward Construction Programs Points': browardPointsLayer,
