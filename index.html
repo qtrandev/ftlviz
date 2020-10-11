@@ -8,15 +8,17 @@
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.css">
     <link rel="stylesheet" href="dist/leaflet.awesome-markers.css">
     <link rel="stylesheet" href="leaflet-search/leaflet-search.min.css">
+    <link rel="stylesheet" href="nouislider/nouislider.min.css" />
 
     <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
-    <script src="http://maps.google.com/maps/api/js?v=3&sensor=false"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8D11NU8OXfx8VqjFDR0pLcL8SK0n2ZH8"></script>
     <script src="Google.js"></script>
     <script src="GoogleTraffic.js"></script>
     <script src="dist/leaflet.awesome-markers.js"></script>
     <script src="leaflet-search/leaflet-search.min.js"></script>
+    <script src="nouislider/nouislider.min.js"></script>
 
     <style>
         body {
@@ -31,7 +33,7 @@
           padding: 6px 8px;
           font: 14px/16px Arial, Helvetica, sans-serif;
           background: white;
-          background: rgba(255,255,255,0.8);
+          background: rgba(255,255,255,0.9);
           box-shadow: 0 0 15px rgba(0,0,0,0.2);
           border-radius: 5px;
         }
@@ -43,7 +45,7 @@
           padding: 6px 8px;
           font: 14px/16px Arial, Helvetica, sans-serif;
           background: white;
-          background: rgba(255,255,255,0.8);
+          background: rgba(255,255,255,0.9);
           box-shadow: 0 0 15px rgba(0,0,0,0.2);
           border-radius: 5px;
         }
@@ -52,10 +54,74 @@
             color: #777;
         }
     </style>
+
+    <!-- Styles for menu to filter by year -->
+    <style>
+    .menu-ui {
+      background:#fff;
+      position:absolute;
+      bottom:80px;left:10px;
+      z-index:1;
+      border-radius:3px;
+      width:120px;
+      border:1px solid rgba(0,0,0,0.4);
+    }
+    .menu-ui a {
+      font-size:13px;
+      color:#404040;
+      display:block;
+      margin:0;padding:0;
+      padding:10px;
+      text-decoration:none;
+      border-bottom:1px solid rgba(0,0,0,0.25);
+      text-align:center;
+    }
+    .menu-ui a:first-child {
+      border-radius:3px 3px 0 0;
+    }
+    .menu-ui a:last-child {
+      border:none;
+      border-radius:0 0 3px 3px;
+    }
+    .menu-ui a:hover {
+      background:#f8f8f8;
+      color:#404040;
+    }
+    .menu-ui a.active,
+    .menu-ui a.active:hover {
+      background:#3887BE;
+      color:#FFF;
+    }
+
+    #sliderGroup {
+      position:absolute;
+      bottom:10px;left:10px;
+      width:300px;
+    }
+    </style>
   </head>
 
   <body >
     <div id="map"></div>
+
+    <nav class='menu-ui'>
+      <a href='#' class='active' data-filter='all'>Show All Range</a>
+      <a href='#' data-filter='2014'>2014</a>
+      <a href='#' data-filter='2015'>2015</a>
+      <a href='#' data-filter='2016'>2016</a>
+      <a href='#' data-filter='2017'>2017</a>
+      <a href='#' data-filter='2018'>2018</a>
+      <a href='#' data-filter='2019'>2019</a>
+      <a href='#' data-filter='today'>Today</a>
+      <a href='#' data-filter='weekly'>Weekly</a>
+      <a href='#' data-filter='monthly'>Monthly</a>
+    </nav>
+
+    <div id="sliderGroup">
+      <div class="noUi-base" id="slider"></div>
+      <strong><span id="event-start">Slide to begin Start Date</span> to
+      <span id="event-stop">End Date</span></strong>
+    </div>
 
     <script>
 
@@ -64,7 +130,7 @@
 
     // Load MapBox map
     var accessToken = 'pk.eyJ1IjoicXRyYW5kZXYiLCJhIjoiSDF2cGNjZyJ9.D1ybOKe77AQDPHkxCCEpJQ';
-    var osmLayer = L.tileLayer('https://{s}.tiles.mapbox.com/v4/qtrandev.lc0i743k/{z}/{x}/{y}.png?access_token=' + accessToken, {
+    var osmLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=' + accessToken, {
       maxZoom: 20,
       attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
         '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
@@ -79,17 +145,143 @@
     var browardPointsLayer = new L.LayerGroup();
     var cipRoadsLayer = new L.LayerGroup();
     var browardRoadsLayer = new L.LayerGroup();
-    map.addLayer(googleTraffic);
+    var ftlMotLayer = new L.LayerGroup();
+    var ftlBoundaryLayer = new L.LayerGroup();
+    var searchLayer = new L.LayerGroup();
+    var filterMarkerList = [];
+    var filterLayersListBroward = [];
+    var filterLayersListCIP = [];
+    map.addLayer(osmLayer);
 
-    var control = L.control.layers({'Google Map':googleRoadmap, 'Google Satellite':googleHybrid, 'Google Traffic':googleTraffic, 'OpenStreetMap':osmLayer},{
+    var control = L.control.layers({'OpenStreetMap':osmLayer, 'Google Map':googleRoadmap, 'Google Satellite':googleHybrid, 'Google Traffic':googleTraffic},{
       'CIP (Capital Improvement Plan) Points': cipPointsLayer,
       'CIP (Capital Improvement Plan) Roads': cipRoadsLayer,
       'Broward Construction Programs Points': browardPointsLayer,
-      'Broward Construction Programs Roads': browardRoadsLayer
+      'Broward Construction Programs Roads': browardRoadsLayer,
+      'FTL Maintenance of Traffic': ftlMotLayer,
+      'FTL Boundary': ftlBoundaryLayer
     });
 
-    var controlSearch = new L.Control.Search({layer: browardPointsLayer, text:'Search descriptions...', initial: false, autoResize: false, position:'topleft', collapsed: false});
+    var controlSearch = new L.Control.Search({layer: searchLayer, text:'Search descriptions...', initial: false, autoResize: false, position:'topleft', collapsed: false});
     map.addControl( controlSearch );
+
+    var slider = document.getElementById('slider');
+
+    noUiSlider.create(slider, {
+      start: [timestamp('2013'), timestamp('2020')],
+      connect: true,
+      step: 24 * 60 * 60 * 1000, // 1 day
+      range: {
+        'min': timestamp('2013'),
+        'max': timestamp('2020')
+      }
+    });
+
+    slider.noUiSlider.on('change', function(){
+      times = slider.noUiSlider.get();
+      updateSlider(Math.round(times[0]),Math.round(times[1]));
+    });
+
+    function updateSlider(time0, time1) {
+      document.getElementById('event-start').innerHTML = formatDate(new Date(time0));
+      document.getElementById('event-stop').innerHTML = formatDate(new Date(time1));
+      handleSlideYear(time0, time1);
+      handleLayerLines(time0, time1);
+    }
+    var sliderStart = (new Date()).getTime(); // Set to current day
+    var sliderStartOneYear = sliderStart+(365 * 24 * 60 * 60 * 1000);
+    slider.noUiSlider.set([sliderStart,sliderStartOneYear]);
+
+    function timestamp(str){
+      return new Date(str).getTime();
+    }
+
+    function formatDate ( date ) {
+      return weekdays[date.getDay()] + ", " +
+        date.getDate() + nth(date.getDate()) + " " +
+        months[date.getMonth()] + " " +
+        date.getFullYear();
+    }
+
+    var  weekdays = [
+      "Sunday", "Monday", "Tuesday",
+      "Wednesday", "Thursday", "Friday",
+      "Saturday"
+    ];
+    var  months = [
+      "January", "February", "March",
+      "April", "May", "June", "July",
+      "August", "September", "October",
+      "November", "December"
+    ];
+
+    // Append a suffix to dates.
+    // Example: 23 => 23rd, 1 => 1st.
+    function nth (d) {
+      if(d>3 && d<21) return 'th';
+      switch (d % 10) {
+        case 1:  return "st";
+        case 2:  return "nd";
+        case 3:  return "rd";
+        default: return "th";
+      }
+    }
+
+    function handleSlideYear(time0, time1) {
+      for (var markerIndex in filterMarkerList) {
+        var foundMarker = filterMarkerList[markerIndex];
+        var startTime = foundMarker.options.startTime;
+        var stopTime = foundMarker.options.stopTime;
+        var show = true;
+        if (time1 < startTime) {
+          show = false;
+        } else if (time0 > stopTime) {
+          show = false;
+        }
+        if (show) {
+          map.addLayer(foundMarker);
+        } else {
+          map.removeLayer(foundMarker);
+        }
+      }
+    }
+
+    function handleLayerLines(time0, time1) {
+      // Find matching Broward layers
+      for (var layerIndex in filterLayersListBroward) {
+        var foundLayer = filterLayersListBroward[layerIndex];
+        var startTime = new Date(foundLayer.feature.properties.estimatedw).getTime();
+        var stopTime = new Date(foundLayer.feature.properties.estimate_1).getTime();
+        var show = true;
+        if (time1 < startTime) {
+          show = false;
+        } else if (time0 > stopTime) {
+          show = false;
+        }
+        if (show) {
+          map.addLayer(foundLayer);
+        } else {
+          map.removeLayer(foundLayer);
+        }
+      }
+      // Find matching Fort Lauderdale CIP layers
+      for (var layerIndex in filterLayersListCIP) {
+        var foundLayer = filterLayersListCIP[layerIndex];
+        var startTime = new Date(foundLayer.feature.properties.fy).getTime();
+        var stopTime = new Date(foundLayer.feature.properties.fy).getTime() + 365*24*60*60*1000;
+        var show = true;
+        if (time1 < startTime) {
+          show = false;
+        } else if (time0 > stopTime) {
+          show = false;
+        }
+        if (show) {
+          map.addLayer(foundLayer);
+        } else {
+          map.removeLayer(foundLayer);
+        }
+      }
+    }
 
     var redMarker = L.AwesomeMarkers.icon({
       icon: 'star',
@@ -105,6 +297,11 @@
     var blueMarker = L.AwesomeMarkers.icon({
       icon: 'truck',
       markerColor: 'blue',
+      prefix: 'fa'
+    });
+    var orangeMarker = L.AwesomeMarkers.icon({
+      icon: 'truck',
+      markerColor: 'orange',
       prefix: 'fa'
     });
     var geojsonHighlight;
@@ -133,16 +330,34 @@
             '<br>FY32: ' + props.fy32 +
             '<br>FY52: ' + props.fy52 +
             '<br>FY58: ' + props.fy58 +
-            '<br>FY58WP: ' + props.fy5wp;
+            '<br>FY5WP: ' + props.fy5wp+
+            '<br>WorkMix: '+props.workmix+
+            '<br>TranSyst_1: '+props.transyst_1+
+            '<br>Project Phase: '+props.project_ph+
+            '<br>EstimatedW: '+props.estimatedw+
+            '<br>Estimate_1: '+props.estimate_1;
         } else {
           desc = props.descriptio;
-          details = props.fy;
+          details = props.fy +
+          '<br>' + props.id +
+          '<br>' + props.number;
         }
         display = display + '<br><b>' + desc + '</b>' +
           '<br>' + details;
       } else {
         display = display + '<br>Hover over or click a road or marker';
       }
+      this._div.innerHTML = display;
+    };
+    info.updateMOT = function (props) {
+      var desc = props.applicant_;
+      var details = '<br>Desc: '+props.project_mo+
+      '<br>Location: '+props.project_na+
+      '<br>Date Approved: '+props.date_appro+
+      '<br>Date Begin: '+props.date_begin+
+      '<br>Date End: '+props.date_end;
+      var display = '<h4>Fort Lauderdale Visualization</h4>' +
+      '<br><b>' + desc + '</b>' + '<br>' + details;
       this._div.innerHTML = display;
     };
 
@@ -153,10 +368,14 @@
     map.addLayer(browardPointsLayer);
     map.addLayer(cipRoadsLayer);
     map.addLayer(browardRoadsLayer);
+    map.addLayer(ftlMotLayer);
+    map.addLayer(ftlBoundaryLayer);
     var showCipPoints = true;
     var showBrowardPoints = true;
     var showCipRoads = true;
     var showBrowardRoads = true;
+    var showMotPoints = true;
+    var showFtlBoundary = true;
 
     function addLocations() {
       var i = 0;
@@ -182,14 +401,6 @@
       { name: "Code for Fort Lauderdale", url: "http://www.codeforftl.org", desc: "Code for Fort Lauderdale!" , lat: 26.0802, lng: -80.243259},
     ];
 
-    function addGeoJson(location, displayFunction) {
-      $.getJSON(location, function(data) {
-        var geojson = L.geoJson(data, {
-          onEachFeature: displayFunction });
-        geojson.addTo(map);
-      });
-    }
-
     function addGeoJsonCustom(location, displayFunction, pointFunction) {
       $.getJSON(location, function(data) {
         var geojson = L.geoJson(data, {
@@ -208,7 +419,7 @@
       });
     }
 
-    function addGeoJsonStyleHighlight(location, displayFunction, styleFunction) {
+    function addGeoJsonStyleHighlightCIP(location, displayFunction, styleFunction) {
       $.getJSON(location, function(data) {
         geojsonHighlight = L.geoJson(data, {
           onEachFeature: displayFunction,
@@ -231,10 +442,34 @@
         '<br>FY32: '+feature.properties.fy32+
         '<br>FY52: '+feature.properties.fy52+
         '<br>FY58: '+feature.properties.fy58+
-        '<br>FY58WP: '+feature.properties.fy5wp);
+        '<br>FY5WP: '+feature.properties.fy5wp+
+        '<br>Project Phase: '+feature.properties.project_ph+
+        '<br>EstimatedW: '+feature.properties.estimatedw+
+        '<br>Estimate_1: '+feature.properties.estimate_1+
+        '<br>Object ID: '+feature.properties.objectid+
+        '<br>Version: '+feature.properties.version+
+        '<br>Item Segment: '+feature.properties.item_seg+
+        '<br>Project Status: '+feature.properties.proj_statu+
+        '<br>ConClassDe: '+feature.properties.conclassde+
+        '<br>TranSyst_1: '+feature.properties.transyst_1+
+        '<br>WorkMix: '+feature.properties.workmix+
+        '<br>RDWYID: '+feature.properties.rdwyid+
+        '<br>fm_mp_from: '+feature.properties.fm_mp_from+
+        '<br>fm_mp_to: '+feature.properties.fm_mp_to+
+        '<br>SEAPRTID: '+feature.properties.seaprtid+
+        '<br>AIRPTSIT: '+feature.properties.airptsit+
+        '<br>fm_bridge_: '+feature.properties.fm_bridge_+
+        '<br>SIS: '+feature.properties.sis+
+        '<br>RRR: '+feature.properties.rrr+
+        '<br>LAP: '+feature.properties.lap+
+        '<br>JPA: '+feature.properties.jpa
+      );
     },
     function (feature, latlng) {
-      var marker = L.marker(latlng, {icon: blueMarker, title: feature.properties.loc_desc})
+      var marker = L.marker(latlng, {icon: blueMarker,
+        title: 'Broward: '+feature.properties.loc_desc,
+        startTime: new Date(feature.properties.estimatedw).getTime(),
+        stopTime: new Date(feature.properties.estimate_1).getTime()});
       marker.on({
         mouseover: function (e) {
           info.update(e.target.feature.properties)
@@ -243,12 +478,50 @@
           info.update()
         }
       });
+      filterMarkerList.push(marker);
       marker.addTo(browardPointsLayer);
+      marker.addTo(searchLayer);
       return marker;
+    });
+
+    addGeoJsonCustom("mot_for_tam_080715.geojson",
+    function (feature, layer) {
+      layer.bindPopup(
+        '<strong>'+feature.properties.applicant_+'</strong>'+
+        '<br><br>Desc: '+feature.properties.project_mo+
+        '<br>Location: '+feature.properties.project_na+
+        '<br>Date Approved: '+feature.properties.date_appro+
+        '<br>Date Begin: '+feature.properties.date_begin+
+        '<br>Date End: '+feature.properties.date_end
+      );
+    },
+    function (feature, latlng) {
+      var marker = L.marker(latlng, {icon: orangeMarker,
+        title: 'MOT: '+feature.properties.project_mo,
+        startTime: new Date(feature.properties.date_begin).getTime(),
+        stopTime: new Date(feature.properties.date_end).getTime()});
+      marker.addTo(ftlMotLayer);
+      marker.addTo(searchLayer);
+      marker.on({
+        mouseover: function (e) {
+          info.updateMOT(e.target.feature.properties);
+        },
+        mouseout: function (e) {
+          info.update()
+        }
+      });
+      filterMarkerList.push(marker);
+      return marker;
+    });
+
+    $.getJSON("ftl_boundary_080715.geojson", function(data) {
+      var geojson = L.geoJson(data);
+      geojson.addTo(ftlBoundaryLayer);
     });
 
     addGeoJsonStyleHighlightBroward("bwdco_ftl_const.geojson", function (feature, layer) {
       layer.addTo(browardRoadsLayer);
+      filterLayersListBroward.push(layer);
       layer.on({
         mouseover: highlightFeatureBroward,
         mouseout: resetHighlightBroward
@@ -262,7 +535,28 @@
         '<br>FY32: '+feature.properties.fy32+
         '<br>FY52: '+feature.properties.fy52+
         '<br>FY58: '+feature.properties.fy58+
-        '<br>FY58WP: '+feature.properties.fy5wp);
+        '<br>FY5WP: '+feature.properties.fy5wp+
+        '<br>Project Phase: '+feature.properties.project_ph+
+        '<br>EstimatedW: '+feature.properties.estimatedw+
+        '<br>Estimate_1: '+feature.properties.estimate_1+
+        '<br>Object ID: '+feature.properties.objectid+
+        '<br>Version: '+feature.properties.version+
+        '<br>Item Segment: '+feature.properties.item_seg+
+        '<br>Project Status: '+feature.properties.proj_statu+
+        '<br>ConClassDe: '+feature.properties.conclassde+
+        '<br>TranSyst_1: '+feature.properties.transyst_1+
+        '<br>WorkMix: '+feature.properties.workmix+
+        '<br>RDWYID: '+feature.properties.rdwyid+
+        '<br>fm_mp_from: '+feature.properties.fm_mp_from+
+        '<br>fm_mp_to: '+feature.properties.fm_mp_to+
+        '<br>SEAPRTID: '+feature.properties.seaprtid+
+        '<br>AIRPTSIT: '+feature.properties.airptsit+
+        '<br>fm_bridge_: '+feature.properties.fm_bridge_+
+        '<br>SIS: '+feature.properties.sis+
+        '<br>RRR: '+feature.properties.rrr+
+        '<br>LAP: '+feature.properties.lap+
+        '<br>JPA: '+feature.properties.jpa
+      );
     },
     function (feature) {
       return {
@@ -286,7 +580,10 @@
         '<br>Ex_Airport: '+feature.properties.ex_airport);
     },
     function (feature, latlng) {
-      var marker = L.marker(latlng, {icon: greenMarker})
+      var marker = L.marker(latlng, {icon: greenMarker,
+        title: 'CIP: '+feature.properties.descriptio,
+        startTime: new Date(feature.properties.fy).getTime(),
+        stopTime: new Date(feature.properties.fy).getTime() + 365*24*60*60*1000});
       marker.on({
         mouseover: function (e) {
           info.update(e.target.feature.properties)
@@ -295,13 +592,16 @@
           info.update()
         }
       });
+      filterMarkerList.push(marker);
       marker.addTo(cipPointsLayer);
+      marker.addTo(searchLayer);
       return marker;
     });
 
-    addGeoJsonStyleHighlight("cip_projects_line.geojson",
+    addGeoJsonStyleHighlightCIP("cip_projects_line.geojson",
     function (feature, layer) {
       layer.addTo(cipRoadsLayer);
+      filterLayersListCIP.push(layer);
       layer.on({
         mouseover: highlightFeature,
         mouseout: resetHighlight
@@ -374,10 +674,12 @@
       control.update = function () {
         this._div.innerHTML = '<h4>Filters</h4>'+
         '<br><button type="button" class="btn btn-primary"  onclick="showAll()">All</button>'+
-        '<br><br><button type="button" class="btn btn-primary"  onclick="toggleCipPoints()">CIP Points</button>'+
-        '<br><br><button type="button" class="btn btn-primary"  onclick="toggleCipRoads()">CIP Roads</button>'+
-        '<br><br><button type="button" class="btn btn-primary"  onclick="toggleBrowardPoints()">Broward Points</button>'+
-        '<br><br><button type="button" class="btn btn-primary"  onclick="toggleBrowardRoads()">Broward Roads</button>';
+        '<br><br><button type="button" class="btn btn-primary"  onclick="toggleCipPoints()">CIP Points</button> '+
+        '<button type="button" class="btn btn-primary"  onclick="toggleCipRoads()">CIP Roads</button>'+
+        '<br><br><button type="button" class="btn btn-primary"  onclick="toggleBrowardPoints()">Broward Points</button> '+
+        '<button type="button" class="btn btn-primary"  onclick="toggleBrowardRoads()">Broward Roads</button>' +
+        '<br><br><button type="button" class="btn btn-primary"  onclick="toggleMotPoints()">MOT Points</button> '+
+        '<button type="button" class="btn btn-primary"  onclick="toggleFtlBoundary()">FTL Boundary</button>';
       };
 
       control.addTo(map);
@@ -388,10 +690,12 @@
       map.addLayer(browardPointsLayer);
       map.addLayer(cipRoadsLayer);
       map.addLayer(browardRoadsLayer);
+      map.addLayer(ftlMotLayer);
       showCipPoints = true;
       showBrowardPoints = true;
       showCipRoads = true;
       showBrowardRoads = true;
+      showMotPoints = true;
     }
 
     function toggleCipPoints() {
@@ -413,6 +717,46 @@
       showBrowardRoads? map.removeLayer(browardRoadsLayer) : map.addLayer(browardRoadsLayer);
       showBrowardRoads = !showBrowardRoads;
     }
+
+    function toggleMotPoints() {
+      showMotPoints? map.removeLayer(ftlMotLayer) : map.addLayer(ftlMotLayer);
+      showMotPoints = !showMotPoints;
+    }
+
+    function toggleFtlBoundary() {
+      showFtlBoundary? map.removeLayer(ftlBoundaryLayer) : map.addLayer(ftlBoundaryLayer);
+      showFtlBoundary = !showFtlBoundary;
+    }
+
+    $('.menu-ui a').on('click', function() {
+      // For each filter link, get the 'data-filter' attribute value.
+      var filter = $(this).data('filter');
+      $(this).addClass('active').siblings().removeClass('active');
+      var time0;
+      var time1;
+      if (filter === 'all') {
+        time0 = timestamp('2013');
+        time1 = timestamp('2020');
+      } else if (filter === 'today') {
+        time0 = sliderStart; // Value set to today
+        time1 = sliderStart + (24*60*60*1000);
+      } else if (filter === 'weekly') {
+        var weekvalue = (7*24*60*60*1000); // 7 days
+        time0 = Math.round(slider.noUiSlider.get()[0]) + weekvalue;
+        time1 = time0 + weekvalue;
+      } else if (filter === 'monthly') {
+        var monthvalue = (30*24*60*60*1000); // 30 days
+        time0 = Math.round(slider.noUiSlider.get()[0]) + monthvalue;
+        time1 = time0 + monthvalue;
+      } else {
+        time0 = timestamp(filter.toString());
+        time1 = timestamp(filter.toString())+(365*24*60*60*1000); //Add 365 days
+      }
+      slider.noUiSlider.set([time0,time1]);
+      updateSlider(time0,time1);
+
+      return false;
+    });
 
     </script>
 
