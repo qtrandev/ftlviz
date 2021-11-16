@@ -1,12 +1,13 @@
 # Fort Lauderdale Traffic Visualization
 
 ## What
-Traffic visualization for the City of Fort Lauderdale, concentrating on traffic backups, road construction and repair. Presented to City of Fort Lauderdale's Transportation and Mobility Department in 2015 and inspired they city's LauderStreet app: https://gis.fortlauderdale.gov/LauderStreet/.
+Traffic visualization for the City of Fort Lauderdale, concentrating on traffic backups, road construction and repair. Presented to City of Fort Lauderdale's Transportation and Mobility Department in 2015 and inspired the city's LauderStreet app: https://gis.fortlauderdale.gov/LauderStreet/.
 
 ## Who
 Information supplied by City of Fort Lauderdale to be used by Broward County residents.  
 http://codeforftl.org  
 http://www.fortlauderdale.gov  
+Data provided by the City of Fort Lauderdale to Code for Fort Lauderdale.  
 
 ## Why
 To allow travelers and residents of the Fort Lauderdale area to avoid traffic backups and save travel time. Also for the City of Fort Lauderdale to visualize ongoing construction and for them to see if they can move projects forward or backward allowing streets to have construction work done on them just one time. Also for adjusting closures and traffic signal timings and patterns based on construction and public events.
