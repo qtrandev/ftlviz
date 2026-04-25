@@ -3,19 +3,16 @@
 
   <head>
     <title>Fort Lauderdale Visualization</title>
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="dist/leaflet.awesome-markers.css">
     <link rel="stylesheet" href="leaflet-search/leaflet-search.min.css">
     <link rel="stylesheet" href="nouislider/nouislider.min.css" />
 
-    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8D11NU8OXfx8VqjFDR0pLcL8SK0n2ZH8"></script>
-    <script src="Google.js"></script>
-    <script src="GoogleTraffic.js"></script>
     <script src="dist/leaflet.awesome-markers.js"></script>
     <script src="leaflet-search/leaflet-search.min.js"></script>
     <script src="nouislider/nouislider.min.js"></script>
@@ -128,19 +125,12 @@
     // Initialize map
     var map = L.map('map').setView([26.123679,-80.143186], 12);
 
-    // Load MapBox map
-    var accessToken = 'pk.eyJ1IjoicXRyYW5kZXYiLCJhIjoiSDF2cGNjZyJ9.D1ybOKe77AQDPHkxCCEpJQ';
-    var osmLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=' + accessToken, {
-      maxZoom: 20,
-      attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
-        '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-        'Imagery &copy; <a href="http://mapbox.com">Mapbox</a>'
+    // Load OpenStreetMap tile layer
+    var osmLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
     });
 
-    // Set up Google Maps layers
-    var googleRoadmap = new L.Google('ROADMAP', { maxZoom: 20 });
-    var googleHybrid = new L.Google('HYBRID', { maxZoom: 20 });
-    var googleTraffic = new L.GoogleTraffic('ROADMAP', { maxZoom: 20 });
     var cipPointsLayer = new L.LayerGroup();
     var browardPointsLayer = new L.LayerGroup();
     var cipRoadsLayer = new L.LayerGroup();
@@ -153,7 +143,7 @@
     var filterLayersListCIP = [];
     map.addLayer(osmLayer);
 
-    var control = L.control.layers({'OpenStreetMap':osmLayer, 'Google Map':googleRoadmap, 'Google Satellite':googleHybrid, 'Google Traffic':googleTraffic},{
+    var control = L.control.layers({'OpenStreetMap':osmLayer},{
       'CIP (Capital Improvement Plan) Points': cipPointsLayer,
       'CIP (Capital Improvement Plan) Roads': cipRoadsLayer,
       'Broward Construction Programs Points': browardPointsLayer,
